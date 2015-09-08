@@ -204,6 +204,7 @@ uint64_t binarySearch(const std::vector <int64_t> &v, int64_t key) {
   int low = 0;
   int high = v.size() - 1;
 
+
   while (low <= high) {
     int mid = (low + high) / 2;
     int midVal = v[mid];
@@ -317,7 +318,7 @@ int main()
 {
   dosomething(std::string("data"));
 }
-
+//
 ```
 
 # Future Resistant
