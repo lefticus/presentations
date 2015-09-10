@@ -196,7 +196,7 @@ void do()
 {
   Object o;
   take(std::move(o));
-  o.do_something(); // use of local after move
+  o.do_something();
 }
 
 int main()
@@ -774,9 +774,17 @@ Bonus
 > - C++ >= 11 analysis checking still has a long way to go
 > - You must use a combination of compilers / analyzers
 > - Consider building your own analysis with libclang
->    - see examples
+>     - http://www.kdab.com/use-static-analysis-improve-performance/
+>     - https://github.com/mapbox/cncc
 > - Consider adding to https://github.com/lefticus/AnalysisTestSuite
 
-# ME AGAIN
 
+# Jason Turner
 
+ * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 9:00-9:30*
+ * http://cppbestpractices.com
+ * http://github.com/lefticus
+ * http://cppcast.com
+ * @lefticus
+ * Independent Contractor - *Always looking for new clients*
+ 
