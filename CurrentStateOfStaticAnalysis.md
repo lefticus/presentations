@@ -15,17 +15,18 @@
 
 https://en.wikipedia.org/wiki/Static_program_analysis
 
-> Static program analysis is the analysis of computer software that is performed without actually executing programs (analysis performed on executing programs is known as dynamic analysis).[1] In most cases the analysis is performed on some version of the source code, and in the other cases, some form of the object code.
+> Static program analysis is the analysis of computer software that is performed without actually executing programs...
 
 . . .
 
  * We will be focusing on
-    * source code analysis
+    * source code analysis (as opposed to object code)
     * tools that are freely available
+    * issues I've seen in the wild
 
 . . .
 
- * Technically this includes compiler warnings
+ * Technically static analysis includes compiler warnings
     * compiler warnings will only be brought up if they are unique to a particular compiler
 
 # Tools
@@ -35,82 +36,15 @@ https://en.wikipedia.org/wiki/Static_program_analysis
  * msvc++ analyze
  * coverity's 'scan' (free for open source projects)
 
-
 ## Honorable Mention
  
  * metrix++
  * copy-paste detectors
 
 
-# Case 1
+# C++ >= 11 
 
-```cpp
-#include <cassert>
-
-bool do_something(int &i)
-{
-  ++i;
-  return i < 10;
-}
-
-int main()
-{
-  int i = 0;
-
-
-  assert(do_something(i));
-
-}
-```
-
-# Case 1
-
-```cpp
-#include <cassert>
-
-bool do_something(int &i)
-{
-  ++i;
-  return i < 10;
-}
-
-int main()
-{
-  int i = 0;
-
-  // what happens in a release build?
-  assert(do_something(i));
-  // warning: i is initialized but unused
-}
-```
-
-# Case 1
-
-```cpp
-#include <cassert>
-
-bool do_something(int &i)
-{
-  ++i;
-  return i < 10;
-}
-
-int main()
-{
-  int i = 0;
-
-  // what happens in a release build?
-  assert(do_something(i));
-  if (i > 2) { /* ... */ } // no warning
-}
-```
-
-# Case 1: Assert Conclusions
-
-No tool tested complained as long as `i` was used.
-
-
-# Case 2.1
+# Lambdas.1
 
 ```cpp
 #include <functional>
@@ -131,7 +65,7 @@ int main()
 }
 ```
 
-# Case 2.1
+# Lambdas.1
 
 ```cpp
 #include <functional>
@@ -152,7 +86,7 @@ int main()
 }
 ```
 
-# Case 2.2
+# Lambdas.2
 
 ```cpp
 #include <functional>
@@ -174,7 +108,7 @@ int main()
 ```
 
 
-# Case 2.2
+# Lambdas.2
 
 ```cpp
 #include <functional>
@@ -195,7 +129,7 @@ int main()
 }
 ```
 
-# Case 2.3
+# Lambdas.3
 
 ```cpp
 #include <functional>
@@ -216,7 +150,7 @@ int main()
 }
 ```
 
-# Case 2.3
+# Lambdas.3
 
 ```cpp
 #include <functional>
@@ -238,16 +172,153 @@ int main()
 ```
 
 
-# Case 2: Capture Local Conclusions
+# Lambdas - Capture Local - Conclusions
 
- * cppcheck was able to warn on all uninitialized use cases
- * clang and coverity got confused as to whether the variable was initialized if captured by reference
+ * cppcheck, clang, and coverity got confused as to whether the variable was initialized if captured by reference
  * msvc caught nothing
  
 **No tool warned about the actual capture local by reference and return**
 
 
-# Case 3.1
+# &&
+
+```cpp
+#include <utility>
+
+
+struct Object {
+  void do_something() {}
+};
+
+void take(Object &&) { }
+
+void do()
+{
+  Object o;
+  take(std::move(o));
+  o.do_something(); // use of local after move
+}
+
+int main()
+{
+  do();
+}
+```
+
+# &&
+
+```cpp
+#include <utility>
+
+
+struct Object {
+  void do_something() {}
+};
+
+void take(Object &&) { }
+
+void do()
+{
+  Object o;
+  take(std::move(o));
+  o.do_something(); // use of local after move
+}
+
+int main()
+{
+  do();
+}
+```
+
+# && - Use After Move - Conclusions
+
+ * No tool commented on this problem at all.
+
+Bonus
+
+ * cppcheck points out that *technically* `Object::do_something` can be static
+
+
+
+
+
+
+
+
+# General Issues
+
+# assert
+
+```cpp
+#include <cassert>
+
+bool do_something(int &i)
+{
+  ++i;
+  return i < 10;
+}
+
+int main()
+{
+  int i = 0;
+
+
+  assert(do_something(i));
+
+}
+```
+
+
+# assert
+
+```cpp
+#include <cassert>
+
+bool do_something(int &i)
+{
+  ++i;
+  return i < 10;
+}
+
+int main()
+{
+  int i = 0;
+
+  // what happens in a release build?
+  assert(do_something(i));
+  // warning: i is initialized but unused
+}
+```
+
+
+# assert
+
+```cpp
+#include <cassert>
+
+bool do_something(int &i)
+{
+  ++i;
+  return i < 10;
+}
+
+int main()
+{
+  int i = 0;
+
+  // what happens in a release build?
+  assert(do_something(i));
+  if (i > 2) { /* ... */ } // no warning
+}
+```
+
+# assert - Conclusions
+
+No tool tested complained as long as `i` was used.
+
+
+
+# branching.1
 
 ```cpp
 bool test_value_1() { return true; }
@@ -269,7 +340,7 @@ int main()
 }
 ```
 
-# Case 3.1
+# branching.1
 
 ```cpp
 bool test_value_1() { return true; }
@@ -291,7 +362,7 @@ int main()
 }
 ```
 
-# Case 3.2
+# branching.2
 
 ```cpp
 bool test_value_1() { return true; }
@@ -318,7 +389,7 @@ int main()
 ```
 
 
-# Case 3.2
+# branching.2
 
 ```cpp
 bool test_value_1() { return true; }
@@ -344,7 +415,7 @@ int main()
 }
 ```
 
-# Case 3: Duplicate Branch Conclusions
+# branching - Duplicate Branch - Conclusions
 
  * Only cppcheck caught either case
  * Surprisingly, this more complicated case was caught by Coverity Scan in ChaiScript
@@ -366,7 +437,7 @@ int main()
 
 
 
-# Case 4.1
+# precision.1
 
 ```cpp
 // Assume modern 64bit platform
@@ -385,7 +456,7 @@ int main()
 }
 ```
 
-# Case 4.1
+# precision.1
 
 ```cpp
 // Assume modern 64bit platform
@@ -404,7 +475,7 @@ int main()
 }
 ```
 
-# Case 4.2
+# precision.2
 
 ```cpp
 // Assume modern 64bit platform
@@ -423,7 +494,7 @@ int main()
 }
 ```
 
-# Case 4.2
+# precision.2
 
 ```cpp
 // Assume modern 64bit platform
@@ -442,7 +513,7 @@ int main()
 }
 ```
 
-# Case 4.3
+# precision.3
 
 ```cpp
 // Assume modern 64bit platform
@@ -461,7 +532,7 @@ int main()
 }
 ```
 
-# Case 4.3
+# precision.3
 
 ```cpp
 // Assume modern 64bit platform
@@ -480,7 +551,7 @@ int main()
 }
 ```
 
-# Case 4.3
+# precision.3
 
 ```cpp
 // Assume modern 64bit platform
@@ -500,7 +571,7 @@ int main()
 ```
 
 
-# Case 4.3
+# precision.3
 
 ```cpp
 // Assume modern 64bit platform
@@ -520,7 +591,7 @@ int main()
 ```
 
 
-# Case 4: Loss of Sign and Precision
+# precision - Loss of Sign and Size - Conclusion
 
  * clang and MSVC warn about sign comparisons
  * No tool catches both
@@ -530,7 +601,7 @@ Bonus
  * cppcheck warns us we are iterating over an empty vector
 
 
-# Case 5.1
+# nullptr.1
 
 ```cpp
 void do_something()
@@ -546,7 +617,7 @@ int main()
 }
 ```
 
-# Case 5.1
+# nullptr.1
 
 ```cpp
 void do_something()
@@ -563,7 +634,7 @@ int main()
 ```
 
 
-# Case 5.2
+# nullptr.2
 
 ```cpp
 int *get_i() {
@@ -583,7 +654,7 @@ int main()
 }
 ```
 
-# Case 5.2
+# nullptr.2
 
 ```cpp
 int *get_i() {
@@ -603,11 +674,12 @@ int main()
 }
 ```
 
-# Case 5 - Null Dereferences
+# nullptr - Null Dereferences - Conclusions
 
  * Only cppcheck could catch the indirect nullptr dereference
 
-# Case 6
+
+# deadcode
 
 ```cpp
 #include <system_error>
@@ -637,7 +709,7 @@ int main()
 }
 ```
 
-# Case 6
+# deadcode
 
 ```cpp
 #include <system_error>
@@ -667,69 +739,44 @@ int main()
 }
 ```
 
-# Case 6 - Unreachable Code
+# deadcode - Conclusions
 
  * MSVC warns about this *in the IDE*
  * clang warns with `-Weverything`
 
-# Case 7
+Bonus
 
-```cpp
-#include <utility>
-
-
-struct Object {
-  void do_something() {}
-};
-
-void take(Object &&) { }
-
-void do()
-{
-  Object o;
-  take(std::move(o));
-  o.do_something(); // use of local after move
-}
-
-int main()
-{
-  do();
-}
-```
-
-# Case 7
-
-```cpp
-#include <utility>
+ * coverity scan notes that the `throw` is unhandled in `main`
 
 
-struct Object {
-  void do_something() {}
-};
+# Conclusion
 
-void take(Object &&) { }
-
-void do()
-{
-  Object o;
-  take(std::move(o));
-  o.do_something(); // use of local after move
-}
-
-int main()
-{
-  do();
-}
-```
-
-# Case 7 - Use After Move
-
- * No tool commented on this probable at all.
-
-Bonus Note:
-
- * cppcheck points out that *technically* `Object::do_something` can be static
+<table>
+<thead>
+<tr><th>test</th><th>clang</th><th>cppcheck</th><th>msvc</th><th>coverity scan</th></tr>
+</thead>
+<tr><td>uninit lambda capture</td><td>X</td><td>X</td><td></td><td>X</td></tr>
+<tr><td>uninit lambda capture by ref</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>use after move</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>assert with side effects</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>duplicate else</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>duplicate implied else</td><td></td><td>X</td><td></td><td></td></tr>
+<tr><td>sign comparison</td><td>X</td><td></td><td>X</td><td></td></tr>
+<tr><td>size comparison</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>direct nullptr</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
+<tr><td>indirect nullptr</td><td></td><td>X</td><td></td><td></td></tr>
+<tr><td>deadcode</td><td>X</td><td></td><td>X</td><td>X</td></tr>
+</table>
 
 
+# Conclusion
+
+> - C++ >= 11 analysis checking still has a long way to go
+> - You must use a combination of compilers / analyzers
+> - Consider building your own analysis with libclang
+>    - see examples
+> - Consider adding to https://github.com/lefticus/AnalysisTestSuite
+
+# ME AGAIN
 
 
