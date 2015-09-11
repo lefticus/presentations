@@ -748,6 +748,51 @@ Bonus
 
  * coverity scan notes that the `throw` is unhandled in `main`
 
+# downsides - false positives
+
+```cpp
+#include <vector>
+
+template<typename T>
+T add(T t, T u)
+{
+  return t + u;
+}
+
+template<typename ... T>
+std::vector<int> add_values(int value, T ... t)
+{
+  return {add(t, value)...};
+}
+
+int main()
+{
+  add_values(4);
+}
+```
+
+# downsides - false positives
+
+```cpp
+#include <vector>
+
+template<typename T>
+T add(T t, T u)
+{
+  return t + u;
+}
+
+template<typename ... T>
+std::vector<int> add_values(int value, T ... t)
+{
+  return {add(t, value)...}; // msvc complains `value` is unused in 0th case
+}
+
+int main()
+{
+  add_values(4);
+}
+```
 
 # Conclusion
 
@@ -768,16 +813,21 @@ Bonus
 <tr><td>deadcode</td><td>X</td><td></td><td>X</td><td>X</td></tr>
 </table>
 
-
 # Conclusion
 
 > - C++ >= 11 analysis checking still has a long way to go
 > - You must use a combination of compilers / analyzers
+
+# Conclusion - Actions
+
+> - cppcheck + msvc /analyze gives you very good coverage
+> - clang -Weverything is noisy, but can be tamed
+> - consider `-Werror -Weverything` (with selective disables) on clang
+> - consider `/W3 /WX /analyze` (with selective disables) on MSVC
 > - Consider building your own analysis with libclang
 >     - http://www.kdab.com/use-static-analysis-improve-performance/
 >     - https://github.com/mapbox/cncc
 > - Consider adding to https://github.com/lefticus/AnalysisTestSuite
-
 
 # Jason Turner
 
@@ -787,4 +837,5 @@ Bonus
  * http://cppcast.com
  * @lefticus
  * Independent Contractor - *Always looking for new clients*
+
  
