@@ -1,3 +1,6 @@
 [submodule "reveal.js"]
 	path = reveal.js
 	url = git@github.com:lefticus/reveal.js.git
+[submodule "CrazyEasy/ChaiScript"]
+	path = CrazyEasy/ChaiScript
+	url = git@github.com:ChaiScript/ChaiScript
