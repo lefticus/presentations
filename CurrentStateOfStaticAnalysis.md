@@ -748,6 +748,65 @@ Bonus
 
  * coverity scan notes that the `throw` is unhandled in `main`
 
+# honorable mention - metrix++
+
+ * analyzes code for various metrics
+ * can calculate [cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) - a measure of code's complexity - 
+   and warn on overly complex sections of code
+
+```cpp
+      static Common_Types get_common_type(const Boxed_Value &t_bv)
+      {
+        const Type_Info &inp_ = t_bv.get_type_info();
+
+        if (inp_ == typeid(int)) {
+          return get_common_type(sizeof(int), true);
+        } else if (inp_ == typeid(double)) {
+          return Common_Types::t_double;
+        } else if (inp_ == typeid(long double)) {
+          return Common_Types::t_long_double;
+        } else if (inp_ == typeid(float)) {
+          return Common_Types::t_float;
+        } else if (inp_ == typeid(char)) {
+          return get_common_type(sizeof(char), std::is_signed<char>::value);
+        } else if (inp_ == typeid(unsigned char)) {
+          return get_common_type(sizeof(unsigned char), false);
+        } else if (inp_ == typeid(unsigned int)) {
+          return get_common_type(sizeof(unsigned int), false);
+        } else if (inp_ == typeid(long)) {
+          return get_common_type(sizeof(long), true);
+        } else if (inp_ == typeid(unsigned long)) {
+          return get_common_type(sizeof(unsigned long), false);
+      /* etc... */
+```
+
+# honorable mention - copy-paste-detectors
+
+ * can detect duplicated code throughout your code base
+
+```cpp
+  } else {
+    if (*s == '\\') {
+      if (is_escaped) {
+        match.push_back('\\');
+        is_escaped = false;
+      } else {
+        is_escaped = true;
+      }
+    } else {
+      if (is_escaped) {
+        switch (*s) {
+          case ('b') : match.push_back('\b'); break;
+          case ('f') : match.push_back('\f'); break;
+          case ('n') : match.push_back('\n'); break;
+          case ('r') : match.push_back('\r'); break;
+          case ('t') : match.push_back('\t'); break;
+          case ('\'') : match.push_back('\''); break;
+          case ('\"') : match.push_back('\"'); break;
+          case ('$') : match.push_back('$'); break;
+```
+
+
 # downsides - false positives
 
 ```cpp
@@ -791,6 +850,88 @@ std::vector<int> add_values(int value, T ... t)
 int main()
 {
   add_values(4);
+}
+```
+
+
+# downsides - false sense of security
+
+ChaiScript passed all of these analyzers (plus some free trials of commercials ones).
+
+. . .
+
+And then we discovered the sanitizers.
+
+. . .
+
+And a few more issues were found.
+
+. . . 
+
+And then we discovered fuzzy testing
+
+. . . 
+
+And MANY more issues were found.
+
+
+# real world cleanup
+
+```cpp
+bool Switch() {
+  bool retval = false;
+
+  size_t prev_stack_top = m_match_stack.size();
+
+  if (Keyword("switch")) {
+    retval = true;
+
+    if (!Char('(')) {
+      throw exception::eval_error("Incomplete 'switch' expression", File_Position(m_line, m_col), *m_filename);
+    /* snip */
+    while (Eol()) {}
+
+    if (Char('{')) {
+      retval = true;
+      /* snip */
+    }
+
+    build_match(AST_NodePtr(new eval::Switch_AST_Node()), prev_stack_top);
+
+
+  }
+
+  return retval;
+}
+```
+
+# real world cleanup
+
+```cpp
+bool Switch() {
+
+
+  size_t prev_stack_top = m_match_stack.size();
+
+  if (Keyword("switch")) {
+
+
+    if (!Char('(')) {
+      throw exception::eval_error("Incomplete 'switch' expression", File_Position(m_line, m_col), *m_filename);
+    /* snip */
+    while (Eol()) {}
+
+    if (Char('{')) {
+
+      /* snip */
+    }
+
+    build_match(AST_NodePtr(new eval::Switch_AST_Node()), prev_stack_top);
+
+    return true;
+  } else {
+    return false;
+  }
 }
 ```
 
@@ -838,4 +979,5 @@ int main()
  * @lefticus
  * Independent Contractor - *Always looking for new clients*
 
- 
+
+
