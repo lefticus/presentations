@@ -41,10 +41,16 @@ https://en.wikipedia.org/wiki/Static_program_analysis
  * metrix++
  * copy-paste detectors
 
+# Just Scratching The Surface
+
+ * There are dozens (hundreds?) of code analysis tools available.
+ * cppcheck has [320 checks](http://sourceforge.net/p/cppcheck/wiki/ListOfChecks/)
+ * clang has [56 checks](http://clang-analyzer.llvm.org/available_checks.html)
+ * MSVC has [~286 checks](https://msdn.microsoft.com/en-us/library/a5b9aa09.aspx)
 
 # C++ >= 11 
 
-# Lambdas.1
+# lambdas.1
 
 ```cpp
 #include <functional>
@@ -65,7 +71,7 @@ int main()
 }
 ```
 
-# Lambdas.1
+# lambdas.1
 
 ```cpp
 #include <functional>
@@ -86,7 +92,7 @@ int main()
 }
 ```
 
-# Lambdas.2
+# lambdas.2
 
 ```cpp
 #include <functional>
@@ -108,7 +114,7 @@ int main()
 ```
 
 
-# Lambdas.2
+# lambdas.2
 
 ```cpp
 #include <functional>
@@ -129,7 +135,7 @@ int main()
 }
 ```
 
-# Lambdas.3
+# lambdas.3
 
 ```cpp
 #include <functional>
@@ -150,7 +156,7 @@ int main()
 }
 ```
 
-# Lambdas.3
+# lambdas.3
 
 ```cpp
 #include <functional>
@@ -172,7 +178,7 @@ int main()
 ```
 
 
-# Lambdas - Capture Local - Conclusions
+# lambdas - Capture Local - Conclusions
 
  * cppcheck, clang, and coverity got confused as to whether the variable was initialized if captured by reference
  * msvc caught nothing
@@ -314,7 +320,8 @@ int main()
 
 # assert - Conclusions
 
-No tool tested complained as long as `i` was used.
+ * No tool tested complained as long as `i` was used.
+ * cppcheck says it's supposed to catch assert statements with side effects
 
 
 
@@ -748,7 +755,7 @@ Bonus
 
  * coverity scan notes that the `throw` is unhandled in `main`
 
-# honorable mention - metrix++
+# Honorable Mention - metrix++
 
  * analyzes code for various metrics
  * can calculate [cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) - a measure of code's complexity - 
@@ -780,7 +787,7 @@ Bonus
       /* etc... */
 ```
 
-# honorable mention - copy-paste-detectors
+# Honorable Mention - Copy-Paste-Detectors
 
  * can detect duplicated code throughout your code base
 
@@ -807,7 +814,7 @@ Bonus
 ```
 
 
-# downsides - false positives
+# Downsides - False Positives
 
 ```cpp
 #include <vector>
@@ -830,7 +837,7 @@ int main()
 }
 ```
 
-# downsides - false positives
+# Downsides - False Positives
 
 ```cpp
 #include <vector>
@@ -875,7 +882,7 @@ And then we discovered fuzzy testing
 And MANY more issues were found.
 
 
-# real world cleanup
+# Real World Cleanup
 
 ```cpp
 bool Switch() {
@@ -905,7 +912,7 @@ bool Switch() {
 }
 ```
 
-# real world cleanup
+# Real World Cleanup
 
 ```cpp
 bool Switch() {
@@ -961,8 +968,8 @@ bool Switch() {
 
 # Conclusion - Actions
 
-> - cppcheck + msvc /analyze gives you very good coverage
-> - clang -Weverything is noisy, but can be tamed
+> - cppcheck + msvc `/analyze` gives you very good coverage
+> - clang `-Weverything` is noisy, but can be tamed
 > - consider `-Werror -Weverything` (with selective disables) on clang
 > - consider `/W3 /WX /analyze` (with selective disables) on MSVC
 > - Consider building your own analysis with libclang

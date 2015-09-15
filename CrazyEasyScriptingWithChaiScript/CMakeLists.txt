@@ -11,43 +11,6 @@ else()
 endif()
 
 
-if(CMAKE_COMPILER_IS_GNUCC)
-  option(ENABLE_COVERAGE "Enable Coverage Reporting in GCC" FALSE)
-
-  if(ENABLE_COVERAGE)
-    add_definitions(--coverage -O0)
-    set(LINKER_FLAGS "${LINKER_FLAGS} --coverage")
-  endif()
-endif()
-
-
-#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/license.txt")
-#set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/readme.md")
-#set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/description.txt")
-
-set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 0)
-set(CPACK_PACKAGE_VERSION_PATCH 1)
-
-set(CPACK_PACKAGE_EXECUTABLES "game_engine;Game Engine Interperter")
-set(CPACK_PACKAGE_VENDOR "ChaiScript.com")
-set(CPACK_PACKAGE_CONTACT "contact@chaiscript.com")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A game engine")
-
-set(CPACK_DEBIAN_PACKAGE_SECTION "game")
-set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-
-set(CPACK_RPM_PACKAGE_LICENSE "BSD")
-set(CPACK_RPM_PACKAGE_GROUP "Gaming")
-
-set(CHAI_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-
-#configure_file(Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile)
-
-include(CTest)
-include(CPack)
-
-enable_testing()
 
 if(CMAKE_COMPILER_IS_GNUCC)
   execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
