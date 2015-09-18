@@ -8,8 +8,8 @@
  * http://cppbestpractices.com
  * http://github.com/lefticus
  * @lefticus
- * Independent Contractor - *Always looking for new clients*
- 
+ * Independent Contractor
+
 
 # Static Analysis
 
@@ -27,6 +27,7 @@ https://en.wikipedia.org/wiki/Static_program_analysis
 . . .
 
  * Technically static analysis includes compiler warnings
+    * modern compiler warnings are very sophisticated, and include things that used to be considered 'analysis'
     * compiler warnings will only be brought up if they are unique to a particular compiler
 
 # Tools
@@ -48,210 +49,6 @@ https://en.wikipedia.org/wiki/Static_program_analysis
  * clang has [56 checks](http://clang-analyzer.llvm.org/available_checks.html)
  * MSVC has [~286 checks](https://msdn.microsoft.com/en-us/library/a5b9aa09.aspx)
 
-# C++ >= 11 
-
-# lambdas.1
-
-```cpp
-#include <functional>
-#include <iostream>
-
-std::function<void ()> do_something()
-{
-  int some_value = 1;
-
-
-  return [&some_value](){ std::cout << some_value << '\n'; };
-}
-
-int main()
-{
-  const auto f = do_something();
-  f();
-}
-```
-
-# lambdas.1
-
-```cpp
-#include <functional>
-#include <iostream>
-
-std::function<void ()> do_something()
-{
-  int some_value = 1;
-
-  // some_value won't exist when this function is returned
-  return [&some_value](){ std::cout << some_value << '\n'; };
-}
-
-int main()
-{
-  const auto f = do_something();
-  f();
-}
-```
-
-# lambdas.2
-
-```cpp
-#include <functional>
-#include <iostream>
-
-std::function<void ()> do_something()
-{
-  int some_value;
-
-
-  return [some_value](){ std::cout << some_value << '\n'; };
-}
-
-int main()
-{
-  const auto f = do_something();
-  f();
-}
-```
-
-
-# lambdas.2
-
-```cpp
-#include <functional>
-#include <iostream>
-
-std::function<void ()> do_something()
-{
-  int some_value;
-
-  // some_value is used uninitialized
-  return [some_value](){ std::cout << some_value << '\n'; };
-}
-
-int main()
-{
-  const auto f = do_something();
-  f();
-}
-```
-
-# lambdas.3
-
-```cpp
-#include <functional>
-#include <iostream>
-
-std::function<void ()> do_something()
-{
-  int some_value;
-
-
-  return [&some_value](){ std::cout << some_value << '\n'; };
-}
-
-int main()
-{
-  const auto f = do_something();
-  f();
-}
-```
-
-# lambdas.3
-
-```cpp
-#include <functional>
-#include <iostream>
-
-std::function<void ()> do_something()
-{
-  int some_value;
-
-  // uninitialized and captured local by reference
-  return [&some_value](){ std::cout << some_value << '\n'; };
-}
-
-int main()
-{
-  const auto f = do_something();
-  f();
-}
-```
-
-
-# lambdas - Capture Local - Conclusions
-
- * cppcheck, clang, and coverity got confused as to whether the variable was initialized if captured by reference
- * msvc caught nothing
- 
-**No tool warned about the actual capture local by reference and return**
-
-
-# &&
-
-```cpp
-#include <utility>
-
-
-struct Object {
-  void do_something() {}
-};
-
-void take(Object &&) { }
-
-void do()
-{
-  Object o;
-  take(std::move(o));
-  o.do_something();
-}
-
-int main()
-{
-  do();
-}
-```
-
-# &&
-
-```cpp
-#include <utility>
-
-
-struct Object {
-  void do_something() {}
-};
-
-void take(Object &&) { }
-
-void do()
-{
-  Object o;
-  take(std::move(o));
-  o.do_something(); // use of local after move
-}
-
-int main()
-{
-  do();
-}
-```
-
-# && - Use After Move - Conclusions
-
- * No tool commented on this problem at all.
-
-Bonus
-
- * cppcheck points out that *technically* `Object::do_something` can be static
-
-
-
-
-
-
-
-
-# General Issues
 
 # assert
 
@@ -321,7 +118,7 @@ int main()
 # assert - Conclusions
 
  * No tool tested complained as long as `i` was used.
- * cland and cppcheck say they are supposed to catch assert statements with side effects
+ * clang and cppcheck say they are supposed to catch assert statements with side effects
 
 
 
@@ -427,19 +224,19 @@ int main()
  * Only cppcheck caught either case
  * Surprisingly, this more complicated case was caught by Coverity Scan in ChaiScript
 
-    ```cpp
-    if (rt.bare_equal(boxed_type))
-    {
-      if (lt.bare_equal(boxed_pod_type))
-      {
-        return true;
-      }
+```cpp
+if (rt.bare_equal(boxed_type))
+{
+  if (lt.bare_equal(boxed_pod_type))
+  {
+    return true;
+  }
 
-      return true;
-    }
-    ```
+  return true;
+}
+```
 
-    It is unknown why our simplified case was not caught by coverity.
+It is unknown why our simplified case was not caught by coverity.
 
 
 
@@ -680,82 +477,7 @@ int main()
 }
 ```
 
-# nullptr.1
 
-```cpp
-void do_something()
-{
-  int *i = nullptr;
-
-  *i = 5;
-}
-
-int main()
-{
-  null_dereference_1();
-}
-```
-
-# nullptr.1
-
-```cpp
-void do_something()
-{
-  int *i = nullptr;
-  // dereferencing obviously null value
-  *i = 5;
-}
-
-int main()
-{
-  null_dereference_1();
-}
-```
-
-
-# nullptr.2
-
-```cpp
-int *get_i() {
-  return nullptr;
-}
-
-void do_something() 
-{
-  int *i = get_i();
-
-  *i = 5;
-}
-
-int main()
-{
-  null_dereference_2();
-}
-```
-
-# nullptr.2
-
-```cpp
-int *get_i() {
-  return nullptr;
-}
-
-void do_something() 
-{
-  int *i = get_i();
-  // Indirect dereference
-  *i = 5;
-}
-
-int main()
-{
-  null_dereference_2();
-}
-```
-
-# nullptr - Null Dereferences - Conclusions
-
- * Only cppcheck could catch the indirect nullptr dereference
 
 
 # deadcode
@@ -826,6 +548,360 @@ int main()
 Bonus
 
  * coverity scan notes that the `throw` is unhandled in `main`
+
+
+
+# nullptr.1
+
+```cpp
+void do_something()
+{
+  int *i = nullptr;
+
+  *i = 5;
+}
+
+int main()
+{
+  null_dereference_1();
+}
+```
+
+# nullptr.1
+
+```cpp
+void do_something()
+{
+  int *i = nullptr;
+  // dereferencing obviously null value
+  *i = 5;
+}
+
+int main()
+{
+  null_dereference_1();
+}
+```
+
+
+# nullptr.2
+
+```cpp
+int *get_i() {
+  return nullptr;
+}
+
+void do_something() 
+{
+  int *i = get_i();
+
+  *i = 5;
+}
+
+int main()
+{
+  null_dereference_2();
+}
+```
+
+# nullptr.2
+
+```cpp
+int *get_i() {
+  return nullptr;
+}
+
+void do_something() 
+{
+  int *i = get_i();
+  // Indirect dereference
+  *i = 5;
+}
+
+int main()
+{
+  do_something();
+}
+```
+
+# nullptr.3
+
+```cpp
+#include <memory>
+
+void do_something()
+{
+  std::shared_ptr<int> i;
+  // dereferencing obviously null value
+  *i = 5;
+}
+
+int main()
+{
+  do_something();
+}
+```
+
+
+# nullptr - Null Dereferences - Conclusions
+
+ * Everyone caught the obvious one
+ * Only cppcheck could catch the indirect nullptr dereference
+ * No tools could catch the smart pointer version
+
+# array
+
+```cpp
+int main()
+{
+  int a[5];
+  return a[5];
+}
+```
+
+# array
+
+```cpp
+int main()
+{
+  int a[5];
+  return a[5]; // indexing past end of array
+}
+```
+
+# std::array
+
+```cpp
+#include <array>
+
+int main()
+{
+  std::array<int, 5> a;
+  return a[5];
+}
+```
+
+# std::array
+
+```cpp
+#include <array>
+
+int main()
+{
+  std::array<int, 5> a;
+  return a[5]; // indexing past end of array
+}
+```
+
+# array - Conclusions
+
+ * The c-style array is caught by all tools 
+ * `std::array` issue is only caught by cppcheck
+
+Bonus
+
+ * MSVC notices that the c-style array is used uninitialized.
+
+# lambdas.1
+
+```cpp
+#include <functional>
+#include <iostream>
+
+std::function<void ()> do_something()
+{
+  int some_value = 1;
+
+
+  return [&some_value](){ std::cout << some_value << '\n'; };
+}
+
+int main()
+{
+  const auto f = do_something();
+  f();
+}
+```
+
+# lambdas.1
+
+```cpp
+#include <functional>
+#include <iostream>
+
+std::function<void ()> do_something()
+{
+  int some_value = 1;
+
+  // some_value won't exist when this function is returned
+  return [&some_value](){ std::cout << some_value << '\n'; };
+}
+
+int main()
+{
+  const auto f = do_something();
+  f();
+}
+```
+
+# lambdas.2
+
+```cpp
+#include <functional>
+#include <iostream>
+
+std::function<void ()> do_something()
+{
+  int some_value;
+
+
+  return [some_value](){ std::cout << some_value << '\n'; };
+}
+
+int main()
+{
+  const auto f = do_something();
+  f();
+}
+```
+
+
+# lambdas.2
+
+```cpp
+#include <functional>
+#include <iostream>
+
+std::function<void ()> do_something()
+{
+  int some_value;
+
+  // some_value is used uninitialized
+  return [some_value](){ std::cout << some_value << '\n'; };
+}
+
+int main()
+{
+  const auto f = do_something();
+  f();
+}
+```
+
+# lambdas.3
+
+```cpp
+#include <functional>
+#include <iostream>
+
+std::function<void ()> do_something()
+{
+  int some_value;
+
+
+  return [&some_value](){ std::cout << some_value << '\n'; };
+}
+
+int main()
+{
+  const auto f = do_something();
+  f();
+}
+```
+
+# lambdas.3
+
+```cpp
+#include <functional>
+#include <iostream>
+
+std::function<void ()> do_something()
+{
+  int some_value;
+
+  // uninitialized and captured local by reference
+  return [&some_value](){ std::cout << some_value << '\n'; };
+}
+
+int main()
+{
+  const auto f = do_something();
+  f();
+}
+```
+
+
+# lambdas - Capture Local - Conclusions
+
+ * cppcheck, clang, and coverity got confused as to whether the variable was initialized if captured by reference
+ * msvc caught nothing
+ 
+**No tool warned about the actual capture local by reference and return**
+
+
+# &&
+
+```cpp
+#include <utility>
+
+
+struct Object {
+  void do_something() {}
+};
+
+void take(Object &&) { }
+
+void do()
+{
+  Object o;
+  take(std::move(o));
+  o.do_something();
+}
+
+int main()
+{
+  do();
+}
+```
+
+# &&
+
+```cpp
+#include <utility>
+
+
+struct Object {
+  void do_something() {}
+};
+
+void take(Object &&) { }
+
+void do()
+{
+  Object o;
+  take(std::move(o));
+  o.do_something(); // use of local after move
+}
+
+int main()
+{
+  do();
+}
+```
+
+# && - Use After Move - Conclusions
+
+ * No tool commented on this problem at all.
+
+Bonus
+
+ * cppcheck points out that *technically* `Object::do_something` can be static
+
+
+
+
+
+
+
 
 # Honorable Mention - metrix++
 
@@ -1033,19 +1109,20 @@ bool Switch() {
 <tr><td>deadcode</td>                    <td>X</td><td> </td><td>X</td><td>X</td></tr>
 </table>
 
-# Conclusion - Actions
+# Conclusion
 
-> - cppcheck + msvc `/analyze` gives you very good coverage
-> - clang `-Weverything` is noisy, but can be tamed
+> - C style issues are largely a "solved problem"
+> - But there are still many ways to abuse current best practices
+> - Modern C++ and C++ >= 11 analysis checking still has a long way to go
+> - You must use a combination of compilers / analyzers
+
+
+# Actions
+
 > - Consider `-Werror -Weverything` (with selective disables) on clang
 > - Consider `/W3 /WX /analyze` (with selective disables) on MSVC
 > - Consider building your own analysis with libclang or adding to cppcheck
-> - Consider adding to https://github.com/lefticus/AnalysisTestSuite
-
-# Conclusion
-
-> - C++ >= 11 analysis checking still has a long way to go
-> - You must use a combination of compilers / analyzers
+> - Consider adding to https://github.com/lefticus/AnalysisTestSuite where these tests and others live
 
 # Jason Turner
 

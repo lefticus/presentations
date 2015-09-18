@@ -5,11 +5,11 @@
 # Jason Turner
 
  * http://chaiscript.com
+ * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * http://cppcast.com
  * @lefticus
- * Independent Contractor - *Always looking for new clients*
+ * Independent Contractor
 
 
 # ChaiScript
@@ -23,7 +23,7 @@
     - 64bit / 32bit
     - AddressSanitizer / ThreadSanitizer
     - MSVC's Static Analyzer / cppcheck
- - Thread safe by default
+ - Thread safe by default (20% perf boost if disabled)
  - Crazy easy to use
 
 
@@ -33,7 +33,7 @@
 > - At the same time I started wondering what it would take to do multimethod dispatch with C++
 > - And my cousin, a language geek, was interested in working on a language with me.
 
-. . . 
+. . .
 
 Then ChaiScript was born. First as a toolkit to build your own scripting language with ChaiScript being just one reference implementation.
 
@@ -47,7 +47,14 @@ You can still see some of this in the file layout with the `dispatchkit` and `la
 > - Seemless integration with C++
 > - Not get in the way
 > - No pre-processor or complex build process
-> - Be "fast enough"
+> - Be "fast enough" (~1.5M C++ callbacks / second possible currently)
+
+# ChaiScript is Not as Fast as Lua
+
+ * But it doesn't need to be
+ * If you need performance, simply call into C++
+
+
 
 # Basics
 
@@ -105,20 +112,47 @@ int main()
 
   chai.eval(R"(
     print(i); // prints 20
-  )"
+  )");
 }
 ```
 
+# Passing a Function
+
+```cpp
+#include <chaiscript/chaiscript.hpp>
+
+void do_something(const std::function<double (double, double)> &f)
+{
+  std::cout << "Calculated: " << f(2.6, 3.5) << '\n';
+}
+
+int main()
+{
+  chaiscript::ChaiScript chai;
+  chai.add(chaiscript::fun(&do_something), "do_something");
+
+  chai.eval(R"(
+    do_something(`+`); // prints "Calculated 6.1"
+    do_something(`-`); // prints "Calculated -.9"
+    do_something(`*`); // prints "Calculated 9.1"
+    do_something(fun(x, y) { x + y / 3 + y} ); // prints "Calculated 7.2666667"
+  )");
+}
+```
+
+# ChaiScript as a Configuration Language
+
+ * Why use an INI?
 
 
 # Jason Turner
 
  * http://chaiscript.com
+ * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * http://cppcast.com
  * @lefticus
- * Independent Contractor - *Always looking for new clients*
+ * Independent Contractor - *Always interested in meeting new clients*
 
 
 

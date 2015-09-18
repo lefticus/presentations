@@ -46,8 +46,8 @@ Function(AddPDF docName)
   set(output_name ${CMAKE_BINARY_DIR}/${docName}/${docName}.pdf)
   add_custom_command(OUTPUT ${output_name}
 
-    COMMAND ${WKHTMLTOPDF_EXECUTABLE} -q --enable-smart-shrinking --page-size Letter --load-error-handling abort --footer-left "Copyright 2015 Jason Turner"  --footer-center "@lefticus" --footer-right "[page] / [topage]" -O Landscape -s Letter file:///${CMAKE_BINARY_DIR}/${docName}/${docName}.html?print-pdf ${CMAKE_BINARY_DIR}/${docName}/${docName}.pdf
-    DEPENDS ${docName}_html
+    COMMAND ${WKHTMLTOPDF_EXECUTABLE} -q --enable-smart-shrinking --page-size Letter --load-error-handling abort --footer-left "Copyright 2015 Jason Turner"  --footer-center "@lefticus" --footer-right "[page] / [topage]" --javascript-delay 500 -O Landscape -s Letter file:///${CMAKE_BINARY_DIR}/${docName}/${docName}.html?print-pdf ${output_name}
+    DEPENDS ${CMAKE_BINARY_DIR}/${docName}/${docName}.html
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${docName}
     )
 
@@ -55,9 +55,6 @@ Function(AddPDF docName)
     DEPENDS ${output_name}
     )
 
-  if (PACKAGE_BUILT_DOCS)
-    INSTALL(FILES "${output_name}" DESTINATION "./Documentation")
-  endif()
 
 EndFunction()
 
@@ -81,13 +78,19 @@ Function(BuildDocument docName)
     COMMAND ${CMAKE_COMMAND} -E make_directory   ${CMAKE_BINARY_DIR}/${docName}/reveal.js/plugin
     COMMAND ${CMAKE_COMMAND} -E copy_directory   ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/plugin ${CMAKE_BINARY_DIR}/${docName}/reveal.js/plugin
 
-    COMMAND ${PANDOC_EXECUTABLE} ${input_names} -o ${output_name} --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html  --email-obfuscation=none
-    DEPENDS ${input_names} ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/css/theme/lefticus.css
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/${docName}/highlight.js
+    COMMAND ${CMAKE_COMMAND} -E make_directory   ${CMAKE_BINARY_DIR}/${docName}/highlight.js
+    COMMAND ${CMAKE_COMMAND} -E make_directory   ${CMAKE_BINARY_DIR}/${docName}/highlight.js/styles
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/build/highlight.pack.js ${CMAKE_BINARY_DIR}/${docName}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory   ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/src/styles ${CMAKE_BINARY_DIR}/${docName}/highlight.js/styles
+
+    COMMAND ${PANDOC_EXECUTABLE} ${input_names} -o ${output_name} --no-highlight --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html  -A ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  --email-obfuscation=none
+    DEPENDS ${input_names} ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/css/theme/lefticus.css
     )
 
-  add_custom_target(${docName}_html ALL
-    DEPENDS ${output_name}
-    )
+  #  add_custom_target(${docName}_html ALL
+  #  DEPENDS ${output_name}
+  #  )
 
 
   AddPDF(${docName})
