@@ -12,6 +12,7 @@ int main()
       print(a_future.get());
     )");
 
+  std::cout << chai.eval<int>("async(fun(){ 6+6; }).get()") << '\n';
 
 }
 

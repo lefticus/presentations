@@ -118,5 +118,9 @@ target_link_libraries(sharing_exceptions ${LIBS})
 add_executable(sharing_futures sharing_futures.cpp $<TARGET_OBJECTS:stdlib>)
 target_link_libraries(sharing_futures ${LIBS})
 
+add_executable(config_file config_file.cpp $<TARGET_OBJECTS:stdlib>)
+target_link_libraries(config_file ${LIBS})
+
+
 
 

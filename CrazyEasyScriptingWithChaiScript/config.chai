@@ -1,0 +1,7 @@
+var c = Config();
+
+c.num_steps = 12
+c.repeat_times = c.num_steps * 4
+c.description = "do some stuff with ${c.num_steps}: ${c.repeat_times} times"
+
+c
