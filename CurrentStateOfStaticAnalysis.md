@@ -4,9 +4,9 @@
 # Jason Turner
 
  * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 9:00-9:30*
+ * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * http://cppcast.com
  * @lefticus
  * Independent Contractor - *Always looking for new clients*
  
@@ -321,7 +321,7 @@ int main()
 # assert - Conclusions
 
  * No tool tested complained as long as `i` was used.
- * cppcheck says it's supposed to catch assert statements with side effects
+ * cland and cppcheck say they are supposed to catch assert statements with side effects
 
 
 
@@ -597,6 +597,45 @@ int main()
 }
 ```
 
+# precision.3
+
+```cpp
+// Assume modern 64bit platform
+#include <vector>
+#include <iostream>
+
+int main()
+{
+  std::vector<int> v;
+
+  // this is bad because it limits the loop to 2^31 elements
+  for (int l = 0; l < v.size(); ++l) // Anything else odd?
+  {
+    std::cout << v[l] << '\n';
+  }
+}
+```
+
+# precision.3
+
+```cpp
+// Assume modern 64bit platform
+#include <vector>
+#include <iostream>
+
+int main()
+{
+  std::vector<int> v;
+
+  // this is bad because it limits the loop to 2^31 elements
+  for (int l = 0; l < v.size(); ++l) // We should be using a range-based loop
+  {
+    std::cout << v[l] << '\n';
+  }
+}
+```
+
+
 
 # precision - Loss of Sign and Size - Conclusion
 
@@ -606,7 +645,40 @@ int main()
 Bonus
 
  * cppcheck warns us we are iterating over an empty vector
+ * clang-tidy's modernize checks warn us the loop should be a range based loop
 
+# precision - Real World
+
+<small>Adapted from http://googleresearch.blogspot.no/2006/06/extra-extra-read-all-about-it-nearly.html</small>
+
+```cpp
+#include <vector>
+
+uint64_t binarySearch(const std::vector <int64_t> &v, int64_t key) {
+  int low = 0;
+  int high = v.size() - 1; // loss of precision 
+
+  while (low <= high) {
+    int mid = (low + high) / 2;  
+    int64_t midVal = v[mid];   // What happens with > 2B objects?
+
+    if (midVal < key) {
+      low = mid + 1;
+    } else if (midVal > key) {
+      high = mid - 1;
+    } else {
+      return mid; // key found
+    }
+  }
+
+  return -(low + 1); // key not found. What if negative?
+}
+
+int main()
+{
+  return binarySearch(std::vector<int64_t>{1,2,3,4,5}, 2);
+}
+```
 
 # nullptr.1
 
@@ -749,7 +821,7 @@ int main()
 # deadcode - Conclusions
 
  * MSVC warns about this *in the IDE*
- * clang warns with `-Weverything`
+ * clang warns with `-Weverything` / clang-tidy warns
 
 Bonus
 
@@ -789,7 +861,7 @@ Bonus
 
 # Honorable Mention - Copy-Paste-Detectors
 
- * can detect duplicated code throughout your code base
+ * From the [PMD](https://pmd.github.io/) project can detect duplicated code throughout your code base
 
 ```cpp
   } else {
@@ -948,41 +1020,39 @@ bool Switch() {
 <thead>
 <tr><th>test</th><th>clang</th><th>cppcheck</th><th>msvc</th><th>coverity scan</th></tr>
 </thead>
-<tr><td>uninit lambda capture</td><td>X</td><td>X</td><td></td><td>X</td></tr>
-<tr><td>uninit lambda capture by ref</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>use after move</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>assert with side effects</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>duplicate else</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>duplicate implied else</td><td></td><td>X</td><td></td><td></td></tr>
-<tr><td>sign comparison</td><td>X</td><td></td><td>X</td><td></td></tr>
-<tr><td>size comparison</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>direct nullptr</td><td>X</td><td>X</td><td>X</td><td>X</td></tr>
-<tr><td>indirect nullptr</td><td></td><td>X</td><td></td><td></td></tr>
-<tr><td>deadcode</td><td>X</td><td></td><td>X</td><td>X</td></tr>
+<tr><td>uninit lambda capture</td>       <td>X</td><td>X</td><td> </td><td>X</td></tr>
+<tr><td>uninit lambda capture by ref</td><td> </td><td> </td><td> </td><td> </td></tr>
+<tr><td>use after move</td>              <td> </td><td> </td><td> </td><td> </td></tr>
+<tr><td>assert with side effects</td>    <td> </td><td> </td><td> </td><td> </td></tr>
+<tr><td>duplicate else</td>              <td> </td><td> </td><td> </td><td> </td></tr>
+<tr><td>duplicate implied else</td>      <td> </td><td>X</td><td> </td><td> </td></tr>
+<tr><td>sign comparison</td>             <td>X</td><td> </td><td>X</td><td> </td></tr>
+<tr><td>size comparison</td>             <td> </td><td> </td><td> </td><td> </td></tr>
+<tr><td>direct nullptr</td>              <td>X</td><td>X</td><td>X</td><td>X</td></tr>
+<tr><td>indirect nullptr</td>            <td> </td><td>X</td><td> </td><td> </td></tr>
+<tr><td>deadcode</td>                    <td>X</td><td> </td><td>X</td><td>X</td></tr>
 </table>
+
+# Conclusion - Actions
+
+> - cppcheck + msvc `/analyze` gives you very good coverage
+> - clang `-Weverything` is noisy, but can be tamed
+> - Consider `-Werror -Weverything` (with selective disables) on clang
+> - Consider `/W3 /WX /analyze` (with selective disables) on MSVC
+> - Consider building your own analysis with libclang or adding to cppcheck
+> - Consider adding to https://github.com/lefticus/AnalysisTestSuite
 
 # Conclusion
 
 > - C++ >= 11 analysis checking still has a long way to go
 > - You must use a combination of compilers / analyzers
 
-# Conclusion - Actions
-
-> - cppcheck + msvc `/analyze` gives you very good coverage
-> - clang `-Weverything` is noisy, but can be tamed
-> - consider `-Werror -Weverything` (with selective disables) on clang
-> - consider `/W3 /WX /analyze` (with selective disables) on MSVC
-> - Consider building your own analysis with libclang
->     - http://www.kdab.com/use-static-analysis-improve-performance/
->     - https://github.com/mapbox/cncc
-> - Consider adding to https://github.com/lefticus/AnalysisTestSuite
-
 # Jason Turner
 
  * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 9:00-9:30*
+ * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * http://cppcast.com
  * @lefticus
  * Independent Contractor - *Always looking for new clients*
 
