@@ -8,7 +8,6 @@
  * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * @lefticus
  * Independent Contractor
 
 

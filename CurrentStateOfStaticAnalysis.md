@@ -7,8 +7,13 @@
  * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * @lefticus
  * Independent Contractor
+
+# Static Analysis
+
+# Static Analysis
+
+ * Is this now a solved problem with the C++ Core Guidelines?
 
 
 # Static Analysis
@@ -28,7 +33,8 @@ https://en.wikipedia.org/wiki/Static_program_analysis
 
  * Technically static analysis includes compiler warnings
     * modern compiler warnings are very sophisticated, and include things that used to be considered 'analysis'
-    * compiler warnings will only be brought up if they are unique to a particular compiler
+    * compiler warnings will only be brought up if they are unique to a particular compiler (*ex: analysis of printf formatting issues occurs on GCC with no extra warnings enabled*)
+
 
 # Tools
 
@@ -48,6 +54,7 @@ https://en.wikipedia.org/wiki/Static_program_analysis
  * cppcheck has [320 checks](http://sourceforge.net/p/cppcheck/wiki/ListOfChecks/)
  * clang has [56 checks](http://clang-analyzer.llvm.org/available_checks.html)
  * MSVC has [~286 checks](https://msdn.microsoft.com/en-us/library/a5b9aa09.aspx)
+
 
 
 # assert
@@ -1092,29 +1099,11 @@ bool Switch() {
 
 # Conclusion
 
-<table>
-<thead>
-<tr><th>test</th><th>clang</th><th>cppcheck</th><th>msvc</th><th>coverity scan</th></tr>
-</thead>
-<tr><td>uninit lambda capture</td>       <td>X</td><td>X</td><td> </td><td>X</td></tr>
-<tr><td>uninit lambda capture by ref</td><td> </td><td> </td><td> </td><td> </td></tr>
-<tr><td>use after move</td>              <td> </td><td> </td><td> </td><td> </td></tr>
-<tr><td>assert with side effects</td>    <td> </td><td> </td><td> </td><td> </td></tr>
-<tr><td>duplicate else</td>              <td> </td><td> </td><td> </td><td> </td></tr>
-<tr><td>duplicate implied else</td>      <td> </td><td>X</td><td> </td><td> </td></tr>
-<tr><td>sign comparison</td>             <td>X</td><td> </td><td>X</td><td> </td></tr>
-<tr><td>size comparison</td>             <td> </td><td> </td><td> </td><td> </td></tr>
-<tr><td>direct nullptr</td>              <td>X</td><td>X</td><td>X</td><td>X</td></tr>
-<tr><td>indirect nullptr</td>            <td> </td><td>X</td><td> </td><td> </td></tr>
-<tr><td>deadcode</td>                    <td>X</td><td> </td><td>X</td><td>X</td></tr>
-</table>
-
-# Conclusion
-
 > - C style issues are largely a "solved problem"
 > - But there are still many ways to abuse current best practices
 > - Modern C++ and C++ >= 11 analysis checking still has a long way to go
 > - You must use a combination of compilers / analyzers
+> - Where will the standardization of best practices by Sutter & Stroustrup go?
 
 
 # Actions
@@ -1130,7 +1119,6 @@ bool Switch() {
  * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
- * @lefticus
  * Independent Contractor - *Always looking for new clients*
 
 
