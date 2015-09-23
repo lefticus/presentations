@@ -3,19 +3,12 @@
 
 # Jason Turner
 
- * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 8:00-8:45*
+ * http://github.com/lefticus/presentations
  * http://cppcast.com
+ * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 8:00-8:45*
  * http://cppbestpractices.com
- * http://github.com/lefticus
  * Independent Contractor
 
-# Static Analysis
-
-# Static Analysis
-
-This now a solved problem with the C++ Core Guidelines?
-
-. . .
 
 Right?
 
@@ -1171,6 +1164,7 @@ bool Switch() {
 > - But there are still many ways to abuse current best practices
 > - Modern C++ and C++ >= 11 analysis checking still has a long way to go
 > - You must use a combination of compilers / analyzers
+> - C++ Core Guidelines will almost certainly start steering the course of analysis soon
 
 
 # Actions
@@ -1182,10 +1176,10 @@ bool Switch() {
 
 # Jason Turner
 
+ * http://github.com/lefticus
  * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 9:00-9:30*
  * http://cppcast.com
  * http://cppbestpractices.com
- * http://github.com/lefticus
  * Independent Contractor - *Always looking for new clients*
 
 
