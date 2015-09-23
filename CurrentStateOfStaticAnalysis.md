@@ -3,7 +3,7 @@
 
 # Jason Turner
 
- * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 9:00-9:30*
+ * http://chaiscript.com - *Open Session Thursday (tomorrow) morning at 8:00-8:45*
  * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
@@ -13,7 +13,11 @@
 
 # Static Analysis
 
- * Is this now a solved problem with the C++ Core Guidelines?
+This now a solved problem with the C++ Core Guidelines?
+
+. . .
+
+Right?
 
 
 # Static Analysis
@@ -32,8 +36,8 @@ https://en.wikipedia.org/wiki/Static_program_analysis
 . . .
 
  * Technically static analysis includes compiler warnings
-    * modern compiler warnings are very sophisticated, and include things that used to be considered 'analysis'
-    * compiler warnings will only be brought up if they are unique to a particular compiler (*ex: analysis of printf formatting issues occurs on GCC with no extra warnings enabled*)
+    * modern compiler warnings are very sophisticated, and include things that used to be considered 'analysis' (*ex: analysis of printf formatting issues occurs on GCC with no extra warnings enabled*)
+    * compiler warnings will only be brought up if they are unique to a particular compiler 
 
 
 # Tools
@@ -55,7 +59,9 @@ https://en.wikipedia.org/wiki/Static_program_analysis
  * clang has [56 checks](http://clang-analyzer.llvm.org/available_checks.html)
  * MSVC has [~286 checks](https://msdn.microsoft.com/en-us/library/a5b9aa09.aspx)
 
+# Let's Play: Spot the Bug
 
+*Audience participation time*
 
 # assert
 
@@ -905,9 +911,69 @@ Bonus
 
 
 
+# bonus slide - iterator mismatch
 
+```cpp
+#include <vector>
 
+int main()
+{
+  std::vector<int> v;
+  std::vector<int> v2(2,4);
+  std::vector<int> v3(3,4);
 
+  v.insert(v.begin(), v2.begin(), v3.end());
+}
+```
+
+# bonus slide - iterator mismatch
+
+```cpp
+#include <vector>
+
+int main()
+{
+  std::vector<int> v;
+  std::vector<int> v2(2,4);
+  std::vector<int> v3(3,4);
+
+  v.insert(v.begin(), v2.begin(), v3.end()); // coverity catches this
+}
+```
+
+# bonus slide - pointer invalidation
+
+```cpp
+#include <memory>
+
+int main()
+{
+  auto s = std::make_shared<int>(1);
+
+  int *p = s.get();
+  *p = 1;
+
+  s = std::make_shared<int>(2);
+  *p = 5;
+}
+```
+
+# bonus slide - pointer invalidation
+
+```cpp
+#include <memory>
+
+int main()
+{
+  auto s = std::make_shared<int>(1);
+
+  int *p = s.get();
+  *p = 1;
+
+  s = std::make_shared<int>(2); // nobody catches this yet
+  *p = 5;
+}
+```
 
 
 # Honorable Mention - metrix++
@@ -1097,13 +1163,14 @@ bool Switch() {
 }
 ```
 
+
+
 # Conclusion
 
 > - C style issues are largely a "solved problem"
 > - But there are still many ways to abuse current best practices
 > - Modern C++ and C++ >= 11 analysis checking still has a long way to go
 > - You must use a combination of compilers / analyzers
-> - Where will the standardization of best practices by Sutter & Stroustrup go?
 
 
 # Actions
