@@ -10,8 +10,6 @@
  * Independent Contractor
 
 
-Right?
-
 
 # Static Analysis
 
@@ -52,9 +50,9 @@ https://en.wikipedia.org/wiki/Static_program_analysis
  * clang has [56 checks](http://clang-analyzer.llvm.org/available_checks.html)
  * MSVC has [~286 checks](https://msdn.microsoft.com/en-us/library/a5b9aa09.aspx)
 
+
 # Let's Play: Spot the Bug
 
-*Audience participation time*
 
 # assert
 
