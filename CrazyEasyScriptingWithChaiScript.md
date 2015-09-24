@@ -150,6 +150,7 @@ int main()
  * http://cppcast.com
  * http://cppbestpractices.com
  * http://github.com/lefticus
+ * @chaiscript
  * @lefticus
  * Independent Contractor - *Always interested in meeting new clients*
 
