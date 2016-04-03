@@ -81,11 +81,13 @@ Function(BuildDocument docName)
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/${docName}/highlight.js
     COMMAND ${CMAKE_COMMAND} -E make_directory   ${CMAKE_BINARY_DIR}/${docName}/highlight.js
     COMMAND ${CMAKE_COMMAND} -E make_directory   ${CMAKE_BINARY_DIR}/${docName}/highlight.js/styles
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/build/highlight.pack.js ${CMAKE_BINARY_DIR}/${docName}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory   ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/src/styles ${CMAKE_BINARY_DIR}/${docName}/highlight.js/styles
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/highlight.pack.js ${CMAKE_BINARY_DIR}/${docName}/highlight.js/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory   ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/styles ${CMAKE_BINARY_DIR}/${docName}/highlight.js/styles
 
     COMMAND ${PANDOC_EXECUTABLE} ${input_names} -o ${output_name} --no-highlight --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html  -A ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  --email-obfuscation=none
+    #COMMAND ${PANDOC_EXECUTABLE} ${input_names} -o ${output_name} --no-highlight --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html   --email-obfuscation=none
     DEPENDS ${input_names} ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/css/theme/lefticus.css
+    #DEPENDS ${input_names}   ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/css/theme/lefticus.css
     )
 
   #  add_custom_target(${docName}_html ALL
@@ -99,5 +101,6 @@ EndFunction()
 BuildDocument(ThinkingPortable ThinkingPortable.md)
 BuildDocument(CurrentStateOfStaticAnalysis CurrentStateOfStaticAnalysis.md)
 BuildDocument(CrazyEasyScriptingWithChaiScript CrazyEasyScriptingWithChaiScript.md)
+#BuildDocument(StdMoveAntiPattern StdMoveAntiPattern.md)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/CrazyEasyScriptingWithChaiScript)
