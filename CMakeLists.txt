@@ -101,6 +101,6 @@ EndFunction()
 BuildDocument(ThinkingPortable ThinkingPortable.md)
 BuildDocument(CurrentStateOfStaticAnalysis CurrentStateOfStaticAnalysis.md)
 BuildDocument(CrazyEasyScriptingWithChaiScript CrazyEasyScriptingWithChaiScript.md)
-#BuildDocument(StdMoveAntiPattern StdMoveAntiPattern.md)
+BuildDocument(PracticalPerformancePractices PracticalPerformancePractices.md)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/CrazyEasyScriptingWithChaiScript)
