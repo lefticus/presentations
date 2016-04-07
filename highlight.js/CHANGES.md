@@ -1,3 +1,32 @@
+## Version 9.3.0
+
+New languages:
+
+- *Tagger Script* by [Philipp Wolfer][]
+- *MoonScript* by [Billy Quith][]
+
+New styles:
+
+- *xt256* by [Herbert Shin][]
+
+Improvements to existing languages and styles:
+
+- More robust handling of unquoted HTML tag attributes
+- Relevance tuning for QML which was unnecessary eager at seizing other
+  languages' code
+- Improve GAMS language parsing
+- Fixed a bunch of bugs around selectors in Less
+- Kotlin's got a new definition for annotations, updated keywords and other
+  minor improvements
+- Added `move` to Rust keywords
+- Markdown now recognizes \`\`\`-fenced code blocks
+- Improved detection of function declarations in C++ and C#
+
+[Philipp Wolfer]: https://github.com/phw
+[Billy Quith]: https://github.com/billyquith
+[Herbert Shin]: https://github.com/initbar
+
+
 ## Version 9.2.0
 
 New languages:
@@ -30,6 +59,8 @@ Improvements to existing languages and styles:
 [Michael Johnston]: https://github.com/lastobelus
 [Taras]: https://github.com/oxdef
 [Robert Dodier]: https://github.com/robert-dodier
+
+>>>>>>> 15e8c9860c67b3ade7c9d3cc6f924b0c7945e9cb
 
 ## Version 9.1.0
 
