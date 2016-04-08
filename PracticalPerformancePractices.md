@@ -20,6 +20,13 @@
 
 -----------------------------------
 
+# Background 
+
+![img](chai-timing.svg)
+
+
+-----------------------------------
+
 # Performance Practices
 
 This lead to the creation of several rules and practices that I follow to make well-performing code 'by default'
@@ -173,7 +180,9 @@ struct Int
 
 -----------------------------------
 
-# Rule Synopsis
+# Don't Do More Work Than You Have To
+
+## Initialization Rules
 
  * Always const
  * Always initialize
@@ -372,10 +381,27 @@ int main()
 
  - This version is 2.5x faster than the last
 
+-----------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `std::endl`
+
+I still keep seeing this in example code, even from well known authors
+
+```cpp
+void println(ostream &os, const std::string &str)
+{
+  os << str << std::endl;
+}
+```
+
 
 -----------------------------------
 
-# Rule Synopsis
+# Don't Do More Work Than You Have To
+
+## Hidden Work Rules
 
  * Calculate values once - at initialization time
  * Obey the rule of 0
@@ -383,6 +409,8 @@ int main()
  * Avoid automatic conversions
    * Don't pass smart pointers
    * Make conversion operations explicit
+ * avoid `std::endl`
+
 
 -----------------------------------
 
@@ -587,12 +615,446 @@ main:
 
 # Don't Do More Work Than You Have To
 
-## Containers
+## Container Rules
 
 > - Always prefer `std::array`
 > - Then `std::vector`
 > - Then only differ if you need specific behavior
 > - Make sure you understand what the library has to do
+
+
+----------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `shared_ptr` Instantiations
+
+```cpp
+int main() {
+  std::make_shared<int>(1);
+}
+```
+
+-----------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `shared_ptr` Instantiations
+
+
+```x86asm
+std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)2>::~_Sp_counted_ptr_inplace():
+        rep ret
+std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)2>::_M_dispose():
+        rep ret
+std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)2>::_M_get_deleter(std::type_info const&):
+        movq    8(%rsi), %rsi
+        movq    %rdi, %rdx
+        cmpq    typeinfo name for std::_Sp_make_shared_tag, %rsi
+        je      .L4
+        xorl    %eax, %eax
+        cmpb    $42, (%rsi)
+        je      .L3
+        movl    typeinfo name for std::_Sp_make_shared_tag, %edi
+        movl    $24, %ecx
+        repz cmpsb
+        jne     .L3
+.L4:
+        leaq    16(%rdx), %rax
+```
+
+--------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `shared_ptr` Instantiations
+
+
+```x86asm
+.L3:
+        rep ret
+std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)2>::~_Sp_counted_ptr_inplace():
+        movl    $24, %esi
+        jmp     operator delete(void*, unsigned long)
+std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)2>::_M_destroy():
+        jmp     operator delete(void*)
+main:
+        pushq   %rbx
+        movl    $24, %edi
+        call    operator new(unsigned long)
+        movq    %rax, %rbx
+        movl    $1, 8(%rax)
+        movl    $1, 12(%rax)
+        movq    vtable for std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)2>+16, (%rax)
+        movl    $0, 16(%rax)
+        movl    __gthrw___pthread_key_create(unsigned int*, void (*)(void*)), %eax
+        testq   %rax, %rax
+        je      .L17
+        leaq    8(%rbx), %rdi
+        orl     $-1, %esi
+        call    __gnu_cxx::__exchange_and_add(int volatile*, int)
+        subl    $1, %eax
+        je      .L26
+```
+
+----------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `shared_ptr` Instantiations
+
+```x86asm
+.L22:
+        xorl    %eax, %eax
+        popq    %rbx
+        ret
+.L17:
+        movl    $0, 8(%rbx)
+        movl    $0, 12(%rbx)
+.L23:
+        movq    (%rbx), %rax
+        movq    %rbx, %rdi
+        movq    24(%rax), %rax
+        call    *%rax
+        jmp     .L22
+.L26:
+        movq    (%rbx), %rax
+        movq    %rbx, %rdi
+        movq    16(%rax), %rax
+        call    *%rax
+        leaq    12(%rbx), %rdi
+        orl     $-1, %esi
+        call    __gnu_cxx::__exchange_and_add(int volatile*, int)
+        subl    $1, %eax
+        jne     .L22
+        jmp     .L23
+```
+
+----------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `unique_ptr` Instantiations
+
+
+----------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `unique_ptr` Instantiations
+
+```cpp
+int main()
+{
+  std::make_unique<int>(0);
+}
+```
+
+```x86asm
+main:
+        subq    $8, %rsp
+        movl    $4, %edi
+        call    operator new(unsigned long)
+        movl    $4, %esi
+        movl    $0, (%rax)
+        movq    %rax, %rdi
+        call    operator delete(void*, unsigned long)
+        xorl    %eax, %eax
+        addq    $8, %rsp
+        ret
+```
+
+
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+```cpp
+struct B
+{
+  virtual ~B() = default; // plus the other default operations
+  virtual std::vector<int> get_vec() const = 0;
+};
+
+template<typename T>
+struct D : B
+{
+  std::vector<int> get_vec() const override { return m_v; }
+  std::vector<int> m_v;
+}
+```
+
+> - With many template instantiations this code blows up in size quickly
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+## DRY In Templates
+
+```cpp
+
+struct B
+{
+  virtual ~B() = default; // plus the other default operations
+  virtual std::vector<int> get_vec() const { return m_v; }
+  std::vector<int> m_v;
+};
+
+template<typename T>
+struct D : B
+{
+}
+```
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+```cpp
+struct B {
+  virtual ~B() = default;
+};
+
+template<int T>
+struct D : B {
+};
+
+template<int T>
+std::shared_ptr<B> d_factory()
+{
+  return std::make_shared<D<T>>();
+}
+
+int main()
+{
+  std::vector<std::shared_ptr<B>> v{
+    d_factory<1>(), d_factory<2>(), /* ... */ , d_factory<29>(), d_factory<30>()
+  };
+}
+```
+
+> - Prefer returning `unique_ptr<>` (Back To The Basics - Herb Sutter ~0:19)
+> - We already saw that `shared_ptr<>` is big - don't make more than you have to
+
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+## *Always return `unique_ptr<>` from factories*
+
+```cpp
+struct B {
+  virtual ~B() = default;
+};
+
+template<int T>
+struct D : B {
+};
+
+template<int T>
+std::unique_ptr<B> d_factory()
+{
+  return std::unique_shared<D<T>>();
+}
+
+int main()
+{
+  std::vector<std::shared_ptr<B>> v{
+    d_factory<1>(), d_factory<2>(), /* ... */ , d_factory<29>(), d_factory<30>()
+  };
+}
+```
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+## *Always return `unique_ptr<>` from factories*
+
+```cpp
+template<int T> std::make_unique<B> d_factory()
+{
+  return std::make_unique<D<T>>();
+}
+```
+
+1.30s compile, 30k exe, 149796k compile RAM
+
+```cpp
+template<int T> std::shared_ptr<B> d_factory()
+{
+  return std::make_shared<D<T>>();
+}
+```
+
+2.24s compile, 70k exe, 164808k compile RAM
+
+
+```cpp
+template<int T> std::shared_ptr<B> d_factory()
+{
+  return std::make_unique<D<T>>();
+}
+```
+
+2.43s compile, 91k exe, 190044k compile RAM
+
+
+
+----------------------------------------
+
+# Smaller Code Is Faster Code
+
+## *Always return `unique_ptr<>` from factories*
+
+```cpp
+template<int T> std::shared_ptr<B> d_factory()
+{
+  return std::make_shared<D<T>>();
+}
+```
+
+> - This `make_shared` version is faster in raw performance
+> - However, in real-world code, the smaller `unique_ptr<>` solution has proven faster
+> - C++ Core Guidelines are surprisingly inconsistent in examples for factories
+
+-----------------------------------------
+
+# Smaller Code Is Faster Code
+
+```cpp
+std::string add(const std::string &lhs, const std::string &rhs) {
+  return lhs + rhs;
+}
+
+int main() {
+  const std::function<std::string (const std::string &)> f 
+    = std::bind(add, "Hello ", std::placeholders::_1);
+  f("World");
+}
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code
+
+## *Avoid `std::function<>`*
+
+```cpp
+std::string add(const std::string &lhs, const std::string &rhs) {
+  return lhs + rhs;
+}
+
+int main() {
+  const std::function<std::string (const std::string &)> f 
+    = std::bind(add, "Hello ", std::placeholders::_1);
+  f("World");
+}
+```
+
+> - 2.9x slower than bare function call
+> - 30% compile time overhead
+> - ~10% compile size overhead
+
+------------------------------------------
+
+
+# Smaller Code Is Faster Code
+
+## *Never use `std::bind`*
+
+```cpp
+std::string add(const std::string &lhs, const std::string &rhs) {
+  return lhs + rhs;
+}
+
+int main() {
+  const f = std::bind(add, "Hello ", std::placeholders::_1);
+  f("World");
+}
+```
+
+> - 1.9x slower than bare function call
+> - ~15% compile time overhead
+> - Effective Modern C++ #34
+> - Any talk on std::function from STL
+
+------------------------------------------
+
+# Smaller Code Is Faster Code
+
+## *Use Lambdas*
+
+```cpp
+std::string add(const std::string &lhs, const std::string &rhs) {
+  return lhs + rhs;
+}
+
+int main() {
+  const auto f = [](const std::string &b) {
+    return add("Hello ", b);
+  };
+  f("World");
+}
+```
+
+> - 0 overhead compared to direct function call
+> - 0% compile time overhead
+
+------------------------------------------
+
+# When I Break The Rules
+
+## `std::map`
+
+ - For very small, short lived key value pairs, std::vector is faster
+
+```cpp
+std::vector<std::pair<std::string, int>> data;
+```
+
+vs
+
+```cpp
+std::map<std::string, int> data;
+```
+
+
+------------------------------------------
+
+# When I Break The Rules
+
+## `constexpr`
+
+ - `constexpr` can cause significant increases in compile size
+ - "smaller code is faster code"
+
+
+------------------------------------------
+
+
+# When I Break The Rules
+
+## Factories
+
+I take the factory issues one step further to avoid template instantiations and have done:
+
+```cpp
+template<typename T>
+std::shared_ptr<Base> factory()
+{
+  return std::shared_ptr<Base>(static_cast<Base *>(new Derived<T>()));
+}
+```
+
 
 
 
