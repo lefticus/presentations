@@ -2,13 +2,17 @@
 
 # Practical Performance Practices
 
+
 -----------------------------------
+
 
 # Jason Turner
 
 *about me*
 
+
 -----------------------------------
+
 
 # Background
 
@@ -18,7 +22,9 @@
 >     * Great number of template instantations
 >     * Nature of scripting means execution is spread over many functions
 
+
 -----------------------------------
+
 
 # Background 
 
@@ -27,16 +33,20 @@
 
 -----------------------------------
 
+
 # Performance Practices
 
 This lead to the creation of several rules and practices that I follow to make well-performing code 'by default'
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
 
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -54,6 +64,7 @@ int main()
 
 -----------------------------------
 
+
 # Don't Do More Work Than You Have To
 
 ## *Always `const`*
@@ -70,6 +81,7 @@ int main()
 
 
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -99,7 +111,9 @@ int main()
 
  - How can we make `s` `const` in this context?
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -129,6 +143,7 @@ int main()
 
 -----------------------------------
 
+
 # Don't Do More Work Than You Have To
 
 ## *Always Initialize* When Const Isn't Practical
@@ -153,6 +168,7 @@ struct Int
 
 
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -180,6 +196,7 @@ struct Int
 
 -----------------------------------
 
+
 # Don't Do More Work Than You Have To
 
 ## Initialization Rules
@@ -190,6 +207,7 @@ struct Int
 
 
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -222,6 +240,7 @@ struct Int
 
 -------------------------------------
 
+
 # Don't Do More Work Than You Have To
 
 ## *Don't Recalculate Values* - Calculate On First Use
@@ -249,7 +268,9 @@ struct Int
 > - Branching is slower
 > - Atomics are slower
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -277,6 +298,7 @@ struct Int
 
 ----------------------------------------
 
+
 # Don't Do More Work Than You Have To
 
 ```cpp
@@ -295,7 +317,9 @@ struct Derived : Base {
 > - move construction / assignment is disabled (virtual destructor)
 > - virtual ~Derived() is unnecessary
 
+
 ----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -318,7 +342,9 @@ struct Derived : Base {
 
  - 10% improvement with fixing this in just one commonly used class
 
+
 ---------------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -335,6 +361,7 @@ int main()
   use_a_base(ptr);
 }
 ```
+
 
 ---------------------------------------------
 
@@ -359,6 +386,7 @@ int main()
 > - Fixed!
 > - Right?
 
+
 ---------------------------------------------
 
 
@@ -381,7 +409,9 @@ int main()
 
  - This version is 2.5x faster than the last
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -396,8 +426,30 @@ void println(ostream &os, const std::string &str)
 }
 ```
 
+> - What does `std::endl` do?
+> - it's equivalent to `'\n' << std::flush`
+> - Expect that flush to cost you at least 9x overhead in your IO
+
+
+---------------------------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## *Avoid `std::endl`*
+
+Prefer just using `'\n'`
+
+```cpp
+void println(ostream &os, const std::string &str)
+{
+  os << str << '\n';
+}
+```
+
 
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -410,6 +462,14 @@ void println(ostream &os, const std::string &str)
    * Don't pass smart pointers
    * Make conversion operations explicit
  * avoid `std::endl`
+
+
+-----------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## Containers
 
 
 -----------------------------------
@@ -471,7 +531,9 @@ main:
  - Assign a value in the buffer
  - Delete the buffer
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -488,6 +550,7 @@ int main()
  
 
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -541,7 +604,9 @@ main:
         movq    %rax, %rbp
 ```
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -560,7 +625,9 @@ main:
         call    _Unwind_Resume
 ```
 
+
 -----------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -573,7 +640,9 @@ main:
  - Delete node
  - etc?
 
+
 ----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -587,8 +656,8 @@ int main()
 ```
 
 
-
 ----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -613,17 +682,27 @@ main:
 
 ----------------------------------------
 
+
 # Don't Do More Work Than You Have To
 
 ## Container Rules
 
-> - Always prefer `std::array`
-> - Then `std::vector`
-> - Then only differ if you need specific behavior
-> - Make sure you understand what the library has to do
+ - Always prefer `std::array`
+ - Then `std::vector`
+ - Then only differ if you need specific behavior
+ - Make sure you understand what the library has to do
 
 
 ----------------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## `shared_ptr` Instantiations
+
+
+----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -635,7 +714,9 @@ int main() {
 }
 ```
 
+
 -----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -663,7 +744,9 @@ std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)
         leaq    16(%rdx), %rax
 ```
 
+
 --------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -697,7 +780,9 @@ main:
         je      .L26
 ```
 
+
 ----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -730,7 +815,9 @@ main:
         jmp     .L23
 ```
 
+
 ----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -738,6 +825,23 @@ main:
 
 
 ----------------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## `unique_ptr` Instantiations
+
+```cpp
+int main()
+{
+  std::make_unique<int>(0);
+}
+```
+
+> - What does this have to do?
+
+----------------------------------------
+
 
 # Don't Do More Work Than You Have To
 
@@ -768,10 +872,12 @@ main:
 
 ----------------------------------------
 
+
 # Smaller Code Is Faster Code
 
 
 ----------------------------------------
+
 
 # Smaller Code Is Faster Code
 
@@ -792,7 +898,9 @@ struct D : B
 
 > - With many template instantiations this code blows up in size quickly
 
+
 ----------------------------------------
+
 
 # Smaller Code Is Faster Code
 
@@ -813,9 +921,21 @@ struct D : B
 }
 ```
 
+
 ----------------------------------------
 
+
 # Smaller Code Is Faster Code
+
+## Factories
+
+
+----------------------------------------
+
+
+# Smaller Code Is Faster Code
+
+## Factories
 
 ```cpp
 struct B {
@@ -827,13 +947,11 @@ struct D : B {
 };
 
 template<int T>
-std::shared_ptr<B> d_factory()
-{
+std::shared_ptr<B> d_factory() {
   return std::make_shared<D<T>>();
 }
 
-int main()
-{
+int main() {
   std::vector<std::shared_ptr<B>> v{
     d_factory<1>(), d_factory<2>(), /* ... */ , d_factory<29>(), d_factory<30>()
   };
@@ -845,6 +963,7 @@ int main()
 
 
 ----------------------------------------
+
 
 # Smaller Code Is Faster Code
 
@@ -860,20 +979,20 @@ struct D : B {
 };
 
 template<int T>
-std::unique_ptr<B> d_factory()
-{
+std::unique_ptr<B> d_factory() {
   return std::unique_shared<D<T>>();
 }
 
-int main()
-{
+int main() {
   std::vector<std::shared_ptr<B>> v{
     d_factory<1>(), d_factory<2>(), /* ... */ , d_factory<29>(), d_factory<30>()
   };
 }
 ```
 
+
 ----------------------------------------
+
 
 # Smaller Code Is Faster Code
 
@@ -908,8 +1027,8 @@ template<int T> std::shared_ptr<B> d_factory()
 2.43s compile, 91k exe, 190044k compile RAM
 
 
-
 ----------------------------------------
+
 
 # Smaller Code Is Faster Code
 
@@ -1009,7 +1128,28 @@ int main() {
 > - 0 overhead compared to direct function call
 > - 0% compile time overhead
 
+
 ------------------------------------------
+
+
+# Smaller Code Is Faster Code
+
+## Rule Summary
+
+> - Don't repeat yourself in templates
+> - Avoid use of shared_ptr
+> - Avoid std::function
+> - Never use std::bind
+
+
+------------------------------------------
+
+
+# When I Break The Rules
+
+
+------------------------------------------
+
 
 # When I Break The Rules
 
@@ -1056,5 +1196,45 @@ std::shared_ptr<Base> factory()
 ```
 
 
+------------------------------------------
+
+
+# Summary
+
+ - First ask yourself: What am I asking the compiler to do here?
+
+## Initialization Rules
+
+ * Always const
+ * Always initialize
+
+## Hidden Work Rules
+
+ * Calculate values once - at initialization time
+ * Obey the rule of 0
+ * If it looks simpler, it's probably faster
+ * Avoid automatic conversions - use `explicit`
+ * avoid `std::endl`
+
+
+-------------------------------------------
+
+
+# Summary (Continued)
+
+
+## Container Rules
+
+ - Always prefer `std::array`
+ - Then `std::vector`
+ - Then only differ if you need specific behavior
+ - Make sure you understand what the library has to do
+
+## Smaller Code Is Faster Code Rules
+
+ - Don't repeat yourself in templates
+ - Avoid use of shared_ptr
+ - Avoid std::function
+ - Never use std::bind
 
 
