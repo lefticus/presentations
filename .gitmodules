@@ -5,3 +5,9 @@
 	path = CrazyEasyScriptingWithChaiScript/ChaiScript
 	url = git@github.com:ChaiScript/ChaiScript
 
+[submodule "HowAndWhyToAddScripting/ChaiScriptExample/ChaiScript"]
+	path = HowAndWhyToAddScripting/ChaiScriptExample/ChaiScript
+	url = git@github.com:ChaiScript/ChaiScript
+[submodule "HowAndWhyToAddScripting/sol2Example/sol2"]
+	path = HowAndWhyToAddScripting/sol2Example/sol2
+	url = git@github.com:ThePHD/sol2
