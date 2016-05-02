@@ -17,7 +17,7 @@
 # Background
 
 > - ChaiScript has been in development since 2009
-> - Version 5.8 is over 100x faster than 1.0
+> - Version 5.8 is nearly 100x faster than 1.0
 > - Performance measuring is difficult
 >     * Great number of template instantations
 >     * Nature of scripting means execution is spread over many functions
@@ -36,13 +36,217 @@
 
 # Performance Practices
 
-This lead to the creation of several rules and practices that I follow to make well-performing code 'by default'
+This led to the creation of several rules and practices that I follow to make well-performing code 'by default'
+
+-----------------------------------
+
+
+# Which Is Better In Normal Use?
+
+### `std::vector`  
+
+### - or -  
+
+### `std::list`
+
+
+> - WHY?
+
+-----------------------------------
+
+# `std::vector`
+
+-----------------------------------
+
+
+# `std::vector`
+
+```cpp
+int main()
+{
+  std::vector<int> v{1};
+}
+```
+
+ - What has to happen here?
 
 
 -----------------------------------
 
 
+# `std::vector`
+
+```x86asm
+main:
+        subq    $8, %rsp
+        movl    $4, %edi
+        call    operator new(unsigned long)
+        movl    $1, (%rax)
+        movq    %rax, %rdi
+        call    operator delete(void*)
+        xorl    %eax, %eax
+        addq    $8, %rsp
+        ret
+```
+
+ - Allocate a buffer
+ - Assign a value in the buffer
+ - Delete the buffer
+
+
+-----------------------------------
+
+# `std::list`
+
+-----------------------------------
+
+# `std::list`
+
+```cpp
+int main()
+{
+  std::list<int> v{1};
+}
+```
+
+ - What has to happen here?
+ 
+
+-----------------------------------
+
+# `std::list`
+
+```x86asm
+main:
+        pushq   %r12
+        pushq   %rbp
+        movl    $24, %edi
+        pushq   %rbx
+        subq    $32, %rsp
+        movq    $0, 16(%rsp)
+        movq    %rsp, %rbp
+        movq    %rsp, (%rsp)
+        movq    %rsp, 8(%rsp)
+        call    operator new(unsigned long)
+        movq    %rax, %rdi
+        movq    $0, (%rax)
+        movq    $0, 8(%rax)
+        movl    $1, 16(%rax)
+        movq    %rsp, %rsi
+        call    std::__detail::_List_node_base::_M_hook(std::__detail::_List_node_base*)
+        movq    (%rsp), %rdi
+        addq    $1, 16(%rsp)
+        cmpq    %rsp, %rdi
+        je      .L9
+```
+
+-----------------------------------
+
+# `std::list`
+
+```x86asm
+.L10:
+        movq    (%rdi), %rbp
+        call    operator delete(void*)
+        cmpq    %rbx, %rbp
+        movq    %rbp, %rdi
+        jne     .L10
+.L9:
+        addq    $32, %rsp
+        xorl    %eax, %eax
+        popq    %rbx
+        popq    %rbp
+        popq    %r12
+        ret
+        movq    (%rsp), %rdi
+        movq    %rax, %rbp
+```
+
+
+-----------------------------------
+
+# `std::list`
+
+```x86asm
+.L5:
+        cmpq    %rbx, %rdi
+        je      .L4
+        movq    (%rdi), %r12
+        call    operator delete(void*)
+        movq    %r12, %rdi
+        jmp     .L5
+.L4:
+        movq    %rbp, %rdi
+        call    _Unwind_Resume
+```
+
+
+-----------------------------------
+
+
+# `std::list`
+
+ - Allocate a new node
+ - Handle exception thrown during node allocation?
+ - Assign the value
+ - Hook up some pointers
+ - Delete node
+ - etc?
+
+
+----------------------------------------
+
+# Part 1: Don't Do More Work Than You Have To
+
+----------------------------------------
+
 # Don't Do More Work Than You Have To
+
+## What about `std::array`?
+
+```cpp
+int main()
+{
+  std::array<int, 1> v{1};
+}
+```
+
+
+----------------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## What about `std::array`?
+
+```cpp
+int main()
+{
+  std::array<int, 1> v{1};
+}
+```
+
+
+```x86asm
+main:
+        xorl    %eax, %eax
+        ret
+```
+
+ - Code is completely compiled away
+
+
+----------------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## Container Rules
+
+ - Always prefer `std::array`
+ - Then `std::vector`
+ - Then only differ if you need specific behavior
+ - Make sure you understand what the library has to do
 
 
 -----------------------------------
@@ -92,7 +296,7 @@ int main()
 {
   const int i = std::rand();
   std::string s;
-  switch (i%4) {
+  switch (i % 4) {
     case 0:
       s = "long string is mod 0";
       break;
@@ -124,7 +328,7 @@ int main()
 {
   const int i = std::rand();
   const std::string s = [&](){
-    switch (i%4) {
+    switch (i % 4) {
       case 0:
         return "long string is mod 0";
       case 1:
@@ -315,7 +519,7 @@ struct Derived : Base {
 
 > - What's wrong here?
 > - move construction / assignment is disabled (virtual destructor)
-> - virtual ~Derived() is unnecessary
+> - `virtual ~Derived()` is unnecessary
 
 
 ----------------------------------------
@@ -368,7 +572,7 @@ int main()
 
 # Don't Do More Work Than You Have To
 
-## *Avoid (shared_ptr) Copies*
+## *Avoid (`shared_ptr`) Copies*
 
 ```cpp
 int use_a_base(const std::shared_ptr<Base> &p)
@@ -417,7 +621,6 @@ int main()
 
 ## `std::endl`
 
-I still keep seeing this in example code, even from well known authors
 
 ```cpp
 void println(ostream &os, const std::string &str)
@@ -462,235 +665,6 @@ void println(ostream &os, const std::string &str)
    * Don't pass smart pointers
    * Make conversion operations explicit
  * avoid `std::endl`
-
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## Containers
-
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## Which Is Better In Normal Use?
-
-### `std::vector`  
-
-### - or -  
-
-### `std::list`
-
-
-> - WHY?
-
-
------------------------------------
-
-
-
-# Don't Do More Work Than You Have To
-
-## `std::vector`
-
-```cpp
-int main()
-{
-  std::vector<int> v{1};
-}
-```
-
- - What has to happen here?
-
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## `std::vector`
-
-```x86asm
-main:
-        subq    $8, %rsp
-        movl    $4, %edi
-        call    operator new(unsigned long)
-        movl    $1, (%rax)
-        movq    %rax, %rdi
-        call    operator delete(void*)
-        xorl    %eax, %eax
-        addq    $8, %rsp
-        ret
-```
-
- - Allocate a buffer
- - Assign a value in the buffer
- - Delete the buffer
-
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## `std::list`
-
-```cpp
-int main()
-{
-  std::list<int> v{1};
-}
-```
-
- - What has to happen here?
- 
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## `std::list`
-
-```x86asm
-main:
-        pushq   %r12
-        pushq   %rbp
-        movl    $24, %edi
-        pushq   %rbx
-        subq    $32, %rsp
-        movq    $0, 16(%rsp)
-        movq    %rsp, %rbp
-        movq    %rsp, (%rsp)
-        movq    %rsp, 8(%rsp)
-        call    operator new(unsigned long)
-        movq    %rax, %rdi
-        movq    $0, (%rax)
-        movq    $0, 8(%rax)
-        movl    $1, 16(%rax)
-        movq    %rsp, %rsi
-        call    std::__detail::_List_node_base::_M_hook(std::__detail::_List_node_base*)
-        movq    (%rsp), %rdi
-        addq    $1, 16(%rsp)
-        cmpq    %rsp, %rdi
-        je      .L9
-```
-
------------------------------------
-
-# Don't Do More Work Than You Have To
-
-## `std::list`
-
-```x86asm
-.L10:
-        movq    (%rdi), %rbp
-        call    operator delete(void*)
-        cmpq    %rbx, %rbp
-        movq    %rbp, %rdi
-        jne     .L10
-.L9:
-        addq    $32, %rsp
-        xorl    %eax, %eax
-        popq    %rbx
-        popq    %rbp
-        popq    %r12
-        ret
-        movq    (%rsp), %rdi
-        movq    %rax, %rbp
-```
-
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## `std::list`
-
-```x86asm
-.L5:
-        cmpq    %rbx, %rdi
-        je      .L4
-        movq    (%rdi), %r12
-        call    operator delete(void*)
-        movq    %r12, %rdi
-        jmp     .L5
-.L4:
-        movq    %rbp, %rdi
-        call    _Unwind_Resume
-```
-
-
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## `std::list`
-
- - Allocate a new node
- - Handle exception thrown during node allocation?
- - Assign the value
- - Hook up some pointers
- - Delete node
- - etc?
-
-
-----------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## What about `std::array`?
-
-```cpp
-int main()
-{
-  std::array<int, 1> v{1};
-}
-```
-
-
-----------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## What about `std::array`?
-
-```cpp
-int main()
-{
-  std::array<int, 1> v{1};
-}
-```
-
-
-```x86asm
-main:
-        xorl    %eax, %eax
-        ret
-```
-
- - Code is completely compiled away
-
-
-----------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## Container Rules
-
- - Always prefer `std::array`
- - Then `std::vector`
- - Then only differ if you need specific behavior
- - Make sure you understand what the library has to do
 
 
 ----------------------------------------
@@ -967,7 +941,7 @@ int main() {
 
 # Smaller Code Is Faster Code
 
-## *Always return `unique_ptr<>` from factories*
+## *Prefer return `unique_ptr<>` from factories*
 
 ```cpp
 struct B {
@@ -996,7 +970,7 @@ int main() {
 
 # Smaller Code Is Faster Code
 
-## *Always return `unique_ptr<>` from factories*
+## *Prefer return `unique_ptr<>` from factories*
 
 ```cpp
 template<int T> std::make_unique<B> d_factory()
@@ -1032,7 +1006,7 @@ template<int T> std::shared_ptr<B> d_factory()
 
 # Smaller Code Is Faster Code
 
-## *Always return `unique_ptr<>` from factories*
+## *Prefer to return `unique_ptr<>` from factories*
 
 ```cpp
 template<int T> std::shared_ptr<B> d_factory()
@@ -1042,7 +1016,8 @@ template<int T> std::shared_ptr<B> d_factory()
 ```
 
 > - This `make_shared` version is faster in raw performance
-> - However, in real-world code, the smaller `unique_ptr<>` solution has proven faster
+> - If you create many short-lived shared bjects, the make_shared version is best
+> - If you create long-lived shared objects, use the make_unique version
 > - C++ Core Guidelines are surprisingly inconsistent in examples for factories
 
 -----------------------------------------
@@ -1104,7 +1079,7 @@ int main() {
 > - 1.9x slower than bare function call
 > - ~15% compile time overhead
 > - Effective Modern C++ #34
-> - Any talk on std::function from STL
+> - Any talk on `std::function` from STL
 
 ------------------------------------------
 
@@ -1137,9 +1112,9 @@ int main() {
 ## Rule Summary
 
 > - Don't repeat yourself in templates
-> - Avoid use of shared_ptr
-> - Avoid std::function
-> - Never use std::bind
+> - Avoid use of `shared_ptr`
+> - Avoid `std::function`
+> - Never use `std::bind`
 
 
 ------------------------------------------
@@ -1166,6 +1141,8 @@ vs
 ```cpp
 std::map<std::string, int> data;
 ```
+
+ - This is similar to the `boost::flat_map`
 
 
 ------------------------------------------
@@ -1236,5 +1213,55 @@ std::shared_ptr<Base> factory()
  - Avoid use of shared_ptr
  - Avoid std::function
  - Never use std::bind
+
+
+---------------------------------------------
+
+# What's Next?
+
+## Simplifying User Input
+
+```
+var something = 0;
+
+for (var i = 1; i < 10000; ++i)
+{
+  something += int(3 % 2 * 4 + 2 / 16.0 - 100 + (10 ^ 19) / 64 + (3 & 12) - (4 | 14)) % i;
+}
+
+print(something);
+```
+
+---------------------------------------------
+
+# What's Next?
+
+## Simplifying User Input
+
+```
+var something = 0;
+
+for (var i = 1; i < 10000; ++i)
+  something += -109 % i;
+
+print(something);
+```
+
+---------------------------------------------
+
+# What's Next?
+
+## Simplifying User Input
+
+Nearly every project of significance relies on user input. Are there ways you can simplify your user input
+to make the execution of your program faster?
+
+
+---------------------------------------------
+
+# Questions
+
+
+
 
 

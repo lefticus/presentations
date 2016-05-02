@@ -10,7 +10,7 @@ int main()
   chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
 
   chai.add(chaiscript::fun(&hello), "hello");
-  chai.eval(R"(print(hello("world"));)");
+  chai.eval(R"(for(var i = 0; i < 1000000; ++i) { print(hello("world")); } )");
 
 }
 

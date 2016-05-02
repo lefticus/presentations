@@ -27,7 +27,7 @@ int main( int argc, char ** argv ) {
     main_namespace["CppMod"] = cpp_module;
 
 
-    handle<> ignored(( PyRun_String( "print(CppMod.hello(\"world\"))",
+    handle<> ignored(( PyRun_String( "for number in range(1000000):\n    print(CppMod.hello(\"world\"))",
             Py_file_input,
             main_namespace.ptr(),
             main_namespace.ptr() ) ));

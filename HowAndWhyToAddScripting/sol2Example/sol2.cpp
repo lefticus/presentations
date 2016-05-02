@@ -13,7 +13,7 @@ int main() {
   // setting a function is simple
   lua.set_function("hello", hello);
   lua.script(R"(
-    print(hello("world"))
+    for i = 0,1000000,1  do print(hello("world")) end
 )");
 
 }
