@@ -16,11 +16,32 @@
 
 # Background
 
-> - ChaiScript has been in development since 2009
-> - Version 5.8 is nearly 100x faster than 1.0
+> - I have been working on ChaiScript since 2009
 > - Performance measuring is difficult
 >     * Great number of template instantations
 >     * Nature of scripting means execution is spread over many functions
+
+-----------------------------------
+
+# Parsed Nodes
+
+```
+var x = 0;
+
+for (var i = 0; i < 100; ++i) { 
+  x += i; 
+}
+```
+
+![img](parse_node_graph.svg)
+
+
+-----------------------------------
+
+# Performance Profiling
+
+![img](MSVC_ChaiProfiling.png)
+
 
 
 -----------------------------------
@@ -37,6 +58,7 @@
 # Performance Practices
 
 This led to the creation of several rules and practices that I follow to make well-performing code 'by default'
+
 
 -----------------------------------
 
@@ -398,17 +420,6 @@ struct Int
 > - val() parses string on each call
 
 
------------------------------------
-
-
-# Don't Do More Work Than You Have To
-
-## Initialization Rules
-
- * Always const
- * Always initialize
- * Using IIFE can help you initialize
-
 
 -----------------------------------
 
@@ -495,9 +506,23 @@ struct Int
 ```
 
 > - No branching, no atomics, smaller runtime (int vs string)
+> - (this is one case where 'small string optimization' hurts us)
 > - In the context of a large code base, this took ~2 years to find
-> - Resulted in 45% performance improvement across system
+> - Resulted in 10% performance improvement across system
 > - *The simpler solution is almost always the best solution*
+
+
+-----------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## Initialization Rules
+
+ * Always const
+ * Always initialize
+ * Using IIFE can help you initialize
+ * Don't recalculate values that can be calculated once
 
 
 ----------------------------------------
@@ -544,10 +569,89 @@ struct Derived : Base {
 };
 ```
 
- - 10% improvement with fixing this in just one commonly used class
-
+> - 10% improvement with fixing this in just one commonly used class
 
 ---------------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## On The Topic Of Copying
+
+```cpp
+#include <string>
+
+struct S {
+  S(std::string t_s) : s(std::move(t_s)) {}
+  std::string s;
+};
+
+int main()
+{
+  for (int i = 0; i < 10000000; ++i) {
+    std::string s = std::string("a not very short string") + "b";
+    S o(s);
+  }
+}
+```
+
+> - We all know that copying objects is bad
+> - So let's use `std::move`
+
+---------------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## On The Topic Of Copying
+
+
+```cpp
+#include <string>
+
+struct S {
+  S(std::string t_s) : s(std::move(t_s)) {}
+  std::string s;
+};
+
+int main()
+{
+  for (int i = 0; i < 10000000; ++i) {
+    std::string s = std::string("a not very short string") + "b";
+    S o(std::move(s));
+  }
+}
+```
+
+> - 29% more efficient
+> - 32% smaller binary
+> - Good! But what's better?
+
+---------------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## *Avoid Named Temporaries*
+
+
+```cpp
+#include <string>
+
+struct S {
+  S(std::string t_s) : s(std::move(t_s)) {}
+  std::string s;
+};
+
+int main()
+{
+  for (int i = 0; i < 10000000; ++i) {
+    S o(std::string("a not very short string") + "b");
+  }
+}
+```
+
+> - 2% more efficient again
+> - Can lead to less readable code sometimes, but more maintainable than `std::move` calls
+
+-------------------------------------
 
 
 # Don't Do More Work Than You Have To
@@ -566,6 +670,8 @@ int main()
 }
 ```
 
+> - What's the problem here?
+> - Copies are being made of `shared_ptr<Base>`
 
 ---------------------------------------------
 
@@ -589,6 +695,7 @@ int main()
 
 > - Fixed!
 > - Right?
+> - Wrong!
 
 
 ---------------------------------------------
@@ -632,7 +739,7 @@ void println(ostream &os, const std::string &str)
 > - What does `std::endl` do?
 > - it's equivalent to `'\n' << std::flush`
 > - Expect that flush to cost you at least 9x overhead in your IO
-
+> - Had a case where writing a file via our Ruby interface was many times faster than writing via our C++ interface
 
 ---------------------------------------------------
 
@@ -661,10 +768,11 @@ void println(ostream &os, const std::string &str)
  * Calculate values once - at initialization time
  * Obey the rule of 0
  * If it looks simpler, it's probably faster
+ * Avoid object copying
  * Avoid automatic conversions
-   * Don't pass smart pointers
-   * Make conversion operations explicit
- * avoid `std::endl`
+    * Don't pass smart pointers
+    * Make conversion operations explicit
+ * Avoid `std::endl`
 
 
 ----------------------------------------
@@ -830,24 +938,64 @@ int main()
 
 ```x86asm
 main:
-        subq    $8, %rsp
-        movl    $4, %edi
+        sub     rsp, 8
+        mov     edi, 4
         call    operator new(unsigned long)
-        movl    $4, %esi
-        movl    $0, (%rax)
-        movq    %rax, %rdi
+        mov     esi, 4
+        mov     DWORD PTR [rax], 0
+        mov     rdi, rax
         call    operator delete(void*, unsigned long)
-        xorl    %eax, %eax
-        addq    $8, %rsp
+        xor     eax, eax
+        add     rsp, 8
         ret
 ```
 
+----------------------------------------
+
+# Don't Do More Work Than You Have To
+
+## `unique_ptr` Compared To Manual Memory Management
+
+```cpp
+int main()
+{
+  auto i = new int(0);
+  delete i;
+}
+```
+
+```x86asm
+main:
+        sub     rsp, 8
+        mov     edi, 4
+        call    operator new(unsigned long)
+        mov     esi, 4
+        mov     DWORD PTR [rax], 0
+        mov     rdi, rax
+        call    operator delete(void*, unsigned long)
+        xor     eax, eax
+        add     rsp, 8
+        ret
+```
+
+Identical
 
 
 ----------------------------------------
 
+# Part 1: Summary
 
-# Smaller Code Is Faster Code
+ - Don't do more work than you have to
+ - Avoid `shared_ptr`
+ - Avoid `std::endl`
+ - Always `const`
+ - Always initialize with meaningful values
+ - Don't recalculate immutable results
+
+----------------------------------------
+
+
+# Part 2: Smaller Code Is Faster Code
 
 
 ----------------------------------------
@@ -973,7 +1121,7 @@ int main() {
 ## *Prefer return `unique_ptr<>` from factories*
 
 ```cpp
-template<int T> std::make_unique<B> d_factory()
+template<int T> std::unique_ptr<B> d_factory()
 {
   return std::make_unique<D<T>>();
 }
@@ -1016,8 +1164,8 @@ template<int T> std::shared_ptr<B> d_factory()
 ```
 
 > - This `make_shared` version is faster in raw performance
-> - If you create many short-lived shared bjects, the make_shared version is best
-> - If you create long-lived shared objects, use the make_unique version
+> - If you create many short-lived shared bjects, the `make_shared` version is best
+> - If you create long-lived shared objects, use the `make_unique` version
 > - C++ Core Guidelines are surprisingly inconsistent in examples for factories
 
 -----------------------------------------
@@ -1145,15 +1293,6 @@ std::map<std::string, int> data;
  - This is similar to the `boost::flat_map`
 
 
-------------------------------------------
-
-# When I Break The Rules
-
-## `constexpr`
-
- - `constexpr` can cause significant increases in compile size
- - "smaller code is faster code"
-
 
 ------------------------------------------
 
@@ -1180,12 +1319,12 @@ std::shared_ptr<Base> factory()
 
  - First ask yourself: What am I asking the compiler to do here?
 
-## Initialization Rules
+## Initialization Practices
 
  * Always const
  * Always initialize
 
-## Hidden Work Rules
+## Hidden Work Practices
 
  * Calculate values once - at initialization time
  * Obey the rule of 0
@@ -1200,37 +1339,152 @@ std::shared_ptr<Base> factory()
 # Summary (Continued)
 
 
-## Container Rules
+## Container Practices
 
  - Always prefer `std::array`
  - Then `std::vector`
  - Then only differ if you need specific behavior
  - Make sure you understand what the library has to do
 
-## Smaller Code Is Faster Code Rules
+## Smaller Code Is Faster Code Practices
 
  - Don't repeat yourself in templates
  - Avoid use of shared_ptr
  - Avoid std::function
  - Never use std::bind
 
+------------------------------------------
 
----------------------------------------------
+# What About `constexpr`?
 
-# What's Next?
+------------------------------------------
 
-## Simplifying User Input
+# What About `constexpr`?
 
-```
-var something = 0;
-
-for (var i = 1; i < 10000; ++i)
+```cpp
+template<typename Itr>
+constexpr bool is_sorted(Itr begin, const Itr &end)
 {
-  something += int(3 % 2 * 4 + 2 / 16.0 - 100 + (10 ^ 19) / 64 + (3 & 12) - (4 | 14)) % i;
+  Itr start = begin;  
+  ++begin;
+  while (begin != end) {
+    if (!(*start < *begin)) { return false; }
+    start = begin;
+    ++begin;
+  }
+  return true;
 }
 
-print(something);
+template<typename T>
+constexpr bool is_sorted(const std::initializer_list<T> &l) {
+  return is_sorted(l.begin(), l.end());
+}
+
+int main()
+{
+  return is_sorted({1,2,3,4,5});
+}
 ```
+
+------------------------------------------
+
+# What About `constexpr`?
+
+```x86asm
+main:                                   # @main
+        mov     eax, 1
+        ret
+```
+
+------------------------------------------
+
+# What About Not `constexpr`?
+
+```cpp
+template<typename Itr>
+bool is_sorted(Itr begin, const Itr &end)
+{
+  Itr start = begin;  
+  ++begin;
+  while (begin != end) {
+    if (!(*start < *begin)) { return false; }
+    start = begin;
+    ++begin;
+  }
+  return true;
+}
+
+template<typename T>
+bool is_sorted(const std::initializer_list<T> &l) {
+  return is_sorted(l.begin(), l.end());
+}
+
+int main()
+{
+  return is_sorted({1,2,3,4,5});
+}
+```
+
+> - What does this compile to?
+
+------------------------------------------
+
+# What About Not `constexpr`? (with optimizations enabled)
+
+```x86asm
+main:                                   # @main
+        mov     eax, 1
+        ret
+```
+
+------------------------------------------
+
+# `constexpr`
+
+> - I use `constexpr` with care
+> - Full `constexpr` enabling ever data structure that can be can result in bigger code
+> - Bigger code is often slower code
+> - This is a profile and test scenario for me
+
+
+---------------------------------------------
+
+# What's Next?
+
+
+---------------------------------------------
+
+# What's Next?
+
+## Simplifying User Input - Before
+
+```
+var x = 0;
+
+for (var i = 0; i < 100; ++i) { 
+  x += i; 
+}
+```
+
+![img](parse_node_graph.svg)
+
+
+
+---------------------------------------------
+
+# What's Next?
+
+## Simplifying User Input - After
+
+```
+var x = 0;
+
+for (var i = 0; i < 100; ++i) { 
+  x += i; 
+}
+```
+
+![img](optimized_parse_node_graph.svg)
 
 ---------------------------------------------
 
@@ -1238,22 +1492,9 @@ print(something);
 
 ## Simplifying User Input
 
-```
-var something = 0;
+Nearly every project of significance relies on user input. 
 
-for (var i = 1; i < 10000; ++i)
-  something += -109 % i;
-
-print(something);
-```
-
----------------------------------------------
-
-# What's Next?
-
-## Simplifying User Input
-
-Nearly every project of significance relies on user input. Are there ways you can simplify your user input
+Are there ways you can simplify your user input
 to make the execution of your program faster?
 
 

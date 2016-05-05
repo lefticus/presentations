@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
   Init_EmbeddedScripting();
 
-  evalString("1000000.times { puts(EmbeddedScripting::hello('world')) }");
+  evalString(R"ruby(1000000.times { puts(EmbeddedScripting::hello('world')) })ruby");
 
 }
 

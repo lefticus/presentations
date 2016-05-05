@@ -1,0 +1,15 @@
+digraph G {
+node [shape=box];
+
+  File -> Eq1                      -> Var1                     -> Id1;
+          Eq1                      -> Const1;
+  File -> Compiled                 -> Eq3                      -> Id5;
+                                      Eq3                      -> Id6;
+  Eq1 [label="Equation ="];
+  Var1 [label="Var_Decl"];
+  Id1 [label="Id x"];
+  Const1 [label="Constant 0"];
+  Eq3 [label="Equation +="];
+  Id5 [label="Id x"];
+  Id6 [label="Id i"];
+}
