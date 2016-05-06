@@ -8,18 +8,22 @@
 
 # Jason Turner
 
-*about me*
-
+ * http://github.com/lefticus/presentations
+ * http://cppcast.com
+ * http://chaiscript.com
+ * http://cppbestpractices.com
+ * C++ Weekly
+ * @lefticus
+ * Independent Contractor
 
 -----------------------------------
 
 
-# Background
+# Profiling
 
-> - I have been working on ChaiScript since 2009
-> - Performance measuring is difficult
->     * Great number of template instantations
->     * Nature of scripting means execution is spread over many functions
+> - Performance measuring ChaiScript is difficult
+> - Great number of template instantations
+> - Nature of scripting means execution is spread over many similar functions
 
 -----------------------------------
 
@@ -47,7 +51,7 @@ for (var i = 0; i < 100; ++i) {
 -----------------------------------
 
 
-# Background 
+# Performance History
 
 ![img](chai-timing.svg)
 
@@ -1494,14 +1498,22 @@ for (var i = 0; i < 100; ++i) {
 
 Nearly every project of significance relies on user input. 
 
-Are there ways you can simplify your user input
-to make the execution of your program faster?
+Are there ways you can simplify your user input to make the execution of your program faster?
 
 
 ---------------------------------------------
 
-# Questions
+# Questions?
 
+## Jason Turner
+
+ * http://github.com/lefticus/presentations
+ * http://cppcast.com
+ * http://chaiscript.com
+ * http://cppbestpractices.com
+ * C++ Weekly
+ * @lefticus
+ * Independent Contractor
 
 
 

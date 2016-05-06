@@ -1,0 +1,2 @@
+g++ -DNDEBUG -O3 ChaiScript.cpp  -ldl -DCHAISCRIPT_NO_THREADS -I ../../../ChaiScript/include/ -std=c++14
+

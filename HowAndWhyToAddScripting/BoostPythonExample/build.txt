@@ -1,0 +1,2 @@
+g++ -O3 boost_python.cpp -I /usr/include/python2.7/ -lboost_python -lpython2.7
+
