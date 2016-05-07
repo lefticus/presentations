@@ -15,6 +15,8 @@
  * @lefticus
  * Independent Contractor
 
+I prefer an interactive session - please ask questions
+
 -----------------------------------
 
 # My Scripting Background
@@ -152,6 +154,22 @@ By using a scripting engine we:
 Our C++ applications can have the same level of flexibility and extensibility
 
 
+-----------------------------------
+
+
+# Why Do You Want Scripting?
+
+## Runtime Configuration
+
+Scripting can provide an easy way to read / change runtime parameters of a system.
+
+-----------------------------------
+
+
+# Why Do You Want Scripting?
+
+## Other Ideas?
+
 
 -----------------------------------
 
@@ -188,8 +206,10 @@ Our C++ applications can have the same level of flexibility and extensibility
 
 # SWIG
 
- - Parses C++ and generates bindings for various languages
- - Last updated: 2015-12-31 - in active development
+> - Parses C++ and generates bindings for various languages
+> - Last updated: 2015-12-31 - in active development
+
+-----------------------------------
 
 # SWIG
 
@@ -209,6 +229,8 @@ Extensive Language Support
  Scilab                 Tcl
  UFFI 
 ```
+
+-----------------------------------
 
 
 # SWIG
@@ -235,6 +257,11 @@ Extensive Language Support
  5. Execute script
 
 
+Note on the size of openstudio bindings
+
+
+-------------------------------
+
 # SWIG/Ruby - C++ Interface
 
 ```cpp
@@ -247,6 +274,20 @@ std::string hello( const std::string & input );
 
 #endif
 ```
+
+```cpp
+#include "exposed_code.hpp"
+
+std::string hello( const int ) {
+  return "hello world";
+}
+
+std::string hello( const std::string & input ) { 
+  return "hello " + input;
+}
+```
+
+-------------------------------
 
 
 # SWIG/Ruby - SWIG .i Interface
@@ -261,6 +302,9 @@ std::string hello( const std::string & input );
 #include "exposed_code.hpp"
 %}
 ```
+
+
+-------------------------------
 
 
 # SWIG/Ruby - C++ Embedding
@@ -291,12 +335,118 @@ int main(int argc, char *argv[]) {
 ```
 
 
+--------------------------------------
+
+# SWIG/Ruby - Compiling
+
+```cmake
+add_custom_command(
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/EmbeddedScriptingRUBY_wrap.cxx"
+  COMMAND "${SWIG_EXECUTABLE}"
+          "-ruby"
+          "-c++"
+          -o "${CMAKE_CURRENT_BINARY_DIR}/EmbeddedScriptingRUBY_wrap.cxx"
+          "${CMAKE_CURRENT_SOURCE_DIR}/EmbeddedScripting.i"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/EmbeddedScripting.i"
+          "exposed_code.hpp"
+)
+
+add_executable(EmbeddedScripting
+ "${CMAKE_CURRENT_BINARY_DIR}/SWIGRubyRuntime.hxx"
+ main.cpp
+ exposed_code.hpp
+ exposed_code.cpp
+  "${CMAKE_CURRENT_BINARY_DIR}/EmbeddedScriptingRUBY_wrap.cxx"
+ )
+
+target_link_libraries(EmbeddedScripting ${RUBY_LIBRARY}  "dl" "crypt")
+```
+
+
+----------------------------------
+
+
+# SWIG/Ruby - Generated File
+
+```cpp
+SWIGINTERN VALUE
+_wrap_hello(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","hello", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","hello", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  result = hello((std::string const &)*arg1);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+```
+
+
+----------------------------------
+
+
+# SWIG/Ruby - Generated File
+
+```cpp
+SWIGEXPORT void Init_EmbeddedScripting(void) {
+  size_t i;
+  
+  SWIG_InitRuntime();
+  mEmbeddedScripting = rb_define_module("EmbeddedScripting");
+  
+  SWIG_InitializeModule(0);
+  for (i = 0; i < swig_module.size; i++) {
+    SWIG_define_class(swig_module.types[i]);
+  }
+  
+  SWIG_RubyInitializeTrackings();
+  rb_define_module_function(mEmbeddedScripting, "hello", VALUEFUNC(_wrap_hello), -1);
+}
+```
+
+> - Plus an additional 2000 lines of boilerplate code.
+> - If something goes wrong in here it can be difficult to debug why
+> - *However* this does amazing things, like handling dependencies and type info across multiple dynamically loaded modules
+
+
+
+-------------------------------
+
+
+# Boost.Python
+
+
+-------------------------------
+
+
 # Boost.Python
 
  - Provides a wrapper layer for boost <-> python
  - Last updated: 2009-11-17 (AKA boost 1.41.0) according to boost release notes
  - Why didn't we use pybind11? Learned about it late into preparing this talk and couldn't find examples on how to embed (instead of create module).
  
+
+-------------------------------
+
 # Boost.Python
 
 ## Advantages
@@ -309,12 +459,18 @@ int main(int argc, char *argv[]) {
 > * Must specify each thing you want bound to Python, no generator
 > * Not actively maintained
 
+
+-------------------------------
+
 # Boost.Python - Usage
 
  1. Bind C++ functions to Python functions
  2. Initialize embedded scripting engine
  3. Load internally created module
  4. Execute script
+
+
+-------------------------------
 
 
 # Boost.Python - Module Interface
@@ -330,6 +486,9 @@ BOOST_PYTHON_MODULE(CppMod) {
   boost::python::def("hello", &hello);
 }
 ```
+
+-------------------------------
+
 
 # Boost.Python - C++ Embedding
 
@@ -361,11 +520,29 @@ for number in range(1000000):
 }
 ```
 
+-------------------------------
+
+
+# Boost.Python - Compiling
+
+```bash
+g++ boost_python.cpp -I /usr/include/python2.7/ -lboost_python -lpython2.7
+```
+
+-------------------------------
+
+# sol2
+
+-------------------------------
+
 
 # sol2
 
  - Provides a wrapper layer between lua<->c++
  - Last release 2016-05-03 - actively developed
+
+-------------------------------
+
 
 # sol2
 
@@ -377,13 +554,20 @@ for number in range(1000000):
 
 ## Disadvantages
 
-> * Must specify each thing you want bound to Python, no generator
- 
+> * Must specify each thing you want bound to Lua, no generator
+
+
+-------------------------------
+
+
 # sol2 - Usage
 
  1. Create lua state object
  2. Register C++ objects
  3. Execute script
+
+
+-------------------------------
 
 
 # sol2 - C++ Embedding
@@ -408,11 +592,30 @@ int main() {
 }
 ```
 
+
+-------------------------------
+
+
+# sol2 - Compiling
+
+```bash
+g++ ./sol2.cpp -I sol2/ -std=c++11 -I /usr/include/lua5.3/ -llua5.3
+```
+
+-------------------------------
+
+# ChaiScript
+
+
+-------------------------------
+
 # ChaiScript
 
  - Embedded scripting language co-designed by me specifically for C++
  - Last release 2016-04-31 - actively developed
- 
+
+
+-------------------------------
 
 # ChaiScript
 
@@ -420,12 +623,16 @@ int main() {
 
 > - Header only - no external deps
 > - Designed for integration with C++
+> - All types are the same and directly shared between script and C++ (double, std::string, std::function, etc)
 
 ## Disadvantages
 
 > - Header only - compile times seem slow (but realisically probably not impact a real project much)
 
- 
+
+-------------------------------
+
+
 # ChaiScript - Usage
 
  1. Create ChaiScript engine object
@@ -433,7 +640,7 @@ int main() {
  3. Execute script
 
 
-
+-------------------------------
 
 
 # ChaiScript - C++ Embedding
@@ -456,9 +663,24 @@ int main()
 ```
 
 
+-------------------------------
+
+
+# ChaiScript - Compiling
+
+```bash
+g++ ChaiScript.cpp  -ldl -pthread  -I ../../../ChaiScript/include/ -std=c++11
+```
+
+
+-------------------------------
+
+
+
 # Conclusions
 
 > - I don't recommend embedding either Ruby or Python
+> - `PyErr_Print();`
 > - `PyErr_Print(); // global state`
 > - Global state means multithreading is somewhere between very difficult and impossible
 > - But there might be institutional reasons why either makes sense

@@ -3,7 +3,6 @@
 
 #include <string>
 
-std::string hello( const int );
 std::string hello( const std::string & input );
 
 
