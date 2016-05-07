@@ -12,7 +12,7 @@
  * http://cppcast.com
  * http://chaiscript.com
  * http://cppbestpractices.com
- * C++ Weekly
+ * C++ Weekly - YouTube Series
  * @lefticus
  * Independent Contractor
 
@@ -238,6 +238,21 @@ for (var i = 0; i < 100; ++i) {
 
 ![img](parse_node_graph.svg)
 
+-----------------------------------
+
+# Parsed Nodes
+
+```
+var x = 0;
+
+for (var i = 0; i < 100; ++i) { 
+  x += i; 
+}
+```
+
+![img](parse_node_graph_labeled.svg)
+
+
 
 -----------------------------------
 
@@ -247,18 +262,6 @@ for (var i = 0; i < 100; ++i) {
 
 
 
------------------------------------
-
-
-# Performance History
-
-![img](chai-timing.svg)
-
------------------------------------
-
-# Performance Monitoring
-
-![img](performance_monitoring.png)
 
 -----------------------------------
 
@@ -281,47 +284,6 @@ This led to the creation of several rules and practices that I follow to make we
 
 
 > - WHY?
-
------------------------------------
-
-# `std::vector`
-
------------------------------------
-
-
-# `std::vector`
-
-```cpp
-int main()
-{
-  std::vector<int> v{1};
-}
-```
-
- - What has to happen here?
-
-
------------------------------------
-
-
-# `std::vector`
-
-```x86asm
-main:
-        subq    $8, %rsp
-        movl    $4, %edi
-        call    operator new(unsigned long)
-        movl    $1, (%rax)
-        movq    %rax, %rdi
-        call    operator delete(void*)
-        xorl    %eax, %eax
-        addq    $8, %rsp
-        ret
-```
-
- - Allocate a buffer
- - Assign a value in the buffer
- - Delete the buffer
 
 
 -----------------------------------
@@ -416,12 +378,53 @@ main:
 
 # `std::list`
 
- - Allocate a new node
- - Handle exception thrown during node allocation?
- - Assign the value
- - Hook up some pointers
- - Delete node
- - etc?
+> - Allocate a new node
+> - Handle exception thrown during node allocation?
+> - Assign the value
+> - Hook up some pointers
+> - Delete node
+> - etc?
+
+-----------------------------------
+
+# `std::vector`
+
+-----------------------------------
+
+
+# `std::vector`
+
+```cpp
+int main()
+{
+  std::vector<int> v{1};
+}
+```
+
+ - What has to happen here?
+
+
+-----------------------------------
+
+
+# `std::vector`
+
+```x86asm
+main:
+        subq    $8, %rsp
+        movl    $4, %edi
+        call    operator new(unsigned long)
+        movl    $1, (%rax)
+        movq    %rax, %rdi
+        call    operator delete(void*)
+        xorl    %eax, %eax
+        addq    $8, %rsp
+        ret
+```
+
+> - Allocate a buffer
+> - Assign a value in the buffer
+> - Delete the buffer
 
 
 ----------------------------------------
@@ -471,7 +474,7 @@ main:
 
 # Don't Do More Work Than You Have To
 
-## Container Rules
+## Container Practices
 
  - Always prefer `std::array`
  - Then `std::vector`
@@ -725,7 +728,7 @@ struct Int
 
 # Don't Do More Work Than You Have To
 
-## Initialization Rules
+## Initialization Practices
 
  * Always const
  * Always initialize
@@ -971,7 +974,7 @@ void println(ostream &os, const std::string &str)
 
 # Don't Do More Work Than You Have To
 
-## Hidden Work Rules
+## Hidden Work Practices
 
  * Calculate values once - at initialization time
  * Obey the rule of 0
@@ -1899,6 +1902,16 @@ This prevents `std::shared_ptr<Dervied>` or any part of it from ever being insta
 
 ------------------------------------------
 
+# Bonus Slide - Avoid Non-Local Data
+
+## Non-Locals Tend To
+
+> 1. Be statics - which have a cost associated
+> 2. Need some kind of mutex protection
+> 3. Be in a container with on-trivial lookup costs (`std::map<>` for example)
+
+------------------------------------------
+
 
 # Summary
 
@@ -1934,9 +1947,23 @@ This prevents `std::shared_ptr<Dervied>` or any part of it from ever being insta
 ## Smaller Code Is Faster Code Practices
 
  - Don't repeat yourself in templates
- - Avoid use of shared_ptr
- - Avoid std::function
- - Never use std::bind
+ - Avoid use of `std::shared_ptr`
+ - Avoid `std::function`
+ - Never use `std::bind`
+
+
+-----------------------------------
+
+
+# Performance History
+
+![img](chai-timing.svg)
+
+-----------------------------------
+
+# Performance Monitoring
+
+![img](performance_monitoring.png)
 
 ------------------------------------------
 
@@ -2041,7 +2068,7 @@ main:                                   # @main
 
 # So Why Does This All Work?
 
-## Branch and Predictions
+## Branches and Predictions
 
 > - Code branches are expensive
 > - Simpler code has fewer branches
@@ -2129,7 +2156,7 @@ Are there ways you can simplify your user input to make the execution of your pr
  * http://cppcast.com
  * http://chaiscript.com
  * http://cppbestpractices.com
- * C++ Weekly
+ * C++ Weekly - YouTube
  * @lefticus
  * Independent Contractor
 
