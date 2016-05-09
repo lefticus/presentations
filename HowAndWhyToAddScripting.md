@@ -11,7 +11,7 @@
  * http://cppcast.com
  * http://chaiscript.com
  * http://cppbestpractices.com
- * C++ Weekly
+ * C++ Weekly - YouTube
  * @lefticus
  * Independent Contractor
 
@@ -19,14 +19,23 @@ I prefer an interactive session - please ask questions
 
 -----------------------------------
 
-# My Scripting Background
+# My C++ Scripting Background
 
- * First embedded script engine in C++ for a distributed Command and Control network, using Lua via SWIG
- * Created Swig Starter Kit November 2008
+ * First embedded script engine in C++ for a distributed Command and Control network, using Lua via SWIG ~2006
+ * Created SWIG Starter Kit November 2008 (current unmaintained)
  * Started work on ChaiScript May 2009
  * Consulted on C++/Scripting projects since 2010
- * Contributed to SWIG / Node/V8 binding generator
+ * Contributed to SWIG Node/V8 binding generator
 
+-----------------------------------
+
+# My C++ Scripting Background
+
+I've worked on large C++ projects that are fully exposed to scripting
+
+ * 2209 classes/template instantiations, 66903 methods/functions exposed
+ * Supporting Ruby, Python, JavaScript, C#, Java all via SWIG
+ * Work equally well across Windows, Linux, MacOS
 
 -----------------------------------
 
@@ -208,6 +217,7 @@ Scripting can provide an easy way to read / change runtime parameters of a syste
 
 > - Parses C++ and generates bindings for various languages
 > - Last updated: 2015-12-31 - in active development
+> - Wide range of compiler support
 
 -----------------------------------
 
@@ -250,14 +260,13 @@ Extensive Language Support
 
 # SWIG - Usage
 
- 1. Specify C++ interface you want exposed to your scripting language
- 2. Execute SWIG which generates a wrapper file
- 3. Compile generated SWIG output file
- 4. Initialize embedded scripting engine and load SWIG generated module
- 5. Execute script
+> 1. Specify C++ interface you want exposed to your scripting language
+> 2. Execute SWIG which generates a wrapper file
+> 3. Compile generated SWIG output file
+> 4. Initialize embedded scripting engine and load SWIG generated module
+> 5. Execute script
 
 
-Note on the size of openstudio bindings
 
 
 -------------------------------
@@ -277,10 +286,6 @@ std::string hello( const std::string & input );
 
 ```cpp
 #include "exposed_code.hpp"
-
-std::string hello( const int ) {
-  return "hello world";
-}
 
 std::string hello( const std::string & input ) { 
   return "hello " + input;
@@ -337,7 +342,7 @@ int main(int argc, char *argv[]) {
 
 --------------------------------------
 
-# SWIG/Ruby - Compiling
+# SWIG/Ruby - Compiling With CMake
 
 ```cmake
 add_custom_command(
@@ -352,7 +357,6 @@ add_custom_command(
 )
 
 add_executable(EmbeddedScripting
- "${CMAKE_CURRENT_BINARY_DIR}/SWIGRubyRuntime.hxx"
  main.cpp
  exposed_code.hpp
  exposed_code.cpp
@@ -440,8 +444,9 @@ SWIGEXPORT void Init_EmbeddedScripting(void) {
 
 # Boost.Python
 
- - Provides a wrapper layer for boost <-> python
+ - Provides a wrapper layer for Boost <-> python
  - Last updated: 2009-11-17 (AKA boost 1.41.0) according to boost release notes
+ - Supports the compilers that Boost supports
  - Why didn't we use pybind11? Learned about it late into preparing this talk and couldn't find examples on how to embed (instead of create module).
  
 
@@ -464,10 +469,10 @@ SWIGEXPORT void Init_EmbeddedScripting(void) {
 
 # Boost.Python - Usage
 
- 1. Bind C++ functions to Python functions
- 2. Initialize embedded scripting engine
- 3. Load internally created module
- 4. Execute script
+> 1. Bind C++ functions to Python functions
+> 2. Initialize embedded scripting engine
+> 3. Load internally created module
+> 4. Execute script
 
 
 -------------------------------
@@ -540,6 +545,7 @@ g++ boost_python.cpp -I /usr/include/python2.7/ -lboost_python -lpython2.7
 
  - Provides a wrapper layer between lua<->c++
  - Last release 2016-05-03 - actively developed
+ - Supports Visual Studio 2015, Clang 3.5, G++ 4.9
 
 -------------------------------
 
@@ -612,6 +618,7 @@ g++ ./sol2.cpp -I sol2/ -std=c++11 -I /usr/include/lua5.3/ -llua5.3
 # ChaiScript
 
  - Embedded scripting language co-designed by me specifically for C++
+ - Supports Visual Studio 2013, clang 3.4, g++ 4.5 (but this is changing as we move to C++14)
  - Last release 2016-04-31 - actively developed
 
 

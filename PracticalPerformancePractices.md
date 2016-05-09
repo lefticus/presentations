@@ -861,6 +861,7 @@ int main()
 
 > - 2% more efficient again
 > - Can lead to less readable code sometimes, but more maintainable than `std::move` calls
+> - This is taking the "don't declare a variable until you need it" philosophy to its ultimate conclusion
 
 -------------------------------------
 
@@ -950,7 +951,33 @@ void println(ostream &os, const std::string &str)
 > - What does `std::endl` do?
 > - it's equivalent to `'\n' << std::flush`
 > - Expect that flush to cost you at least 9x overhead in your IO
-> - Had a case where writing a file via our Ruby interface was many times faster than writing via our C++ interface
+
+-----------------------------------
+
+
+# Don't Do More Work Than You Have To
+
+## Real World `std::endl` Anecdote
+
+```cpp
+void write_file(std::ostream &os) {
+  os << "a line of text" << std::endl;
+  os << "another line of text" << std::endl;
+  /* snip */
+  os << "many more lines of text" << std::endl;
+}
+
+void write_file(const std::string &filename) {
+  std::ofstream ofs(filename.c_str());
+  write_file(ofs);
+}
+
+std::string get_file_as_string() {
+  std::stringstream ss;
+  write_file(ss);
+  return ss.str();
+}
+```
 
 ---------------------------------------------------
 
