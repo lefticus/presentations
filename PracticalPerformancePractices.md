@@ -48,57 +48,6 @@ main:
 
 # Optimizing Compilers Are Amazing
 
-## clang however...
-
-```x86asm
-main:                                   # @main
-        push    rbx
-        sub     rsp, 32
-        lea     rdi, [rsp + 16]
-        lea     rdx, [rsp + 8]
-        mov     esi, .L.str
-        call    std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&)
-        mov     rax, qword ptr [rsp + 16]
-        lea     rdi, [rax - 24]
-        mov     ebx, dword ptr [rax - 24]
-        mov     ecx, std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep::_S_empty_rep_storage
-        cmp     rdi, rcx
-        jne     .LBB0_1
-.LBB0_6:                                # %std::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() [clone .exit]
-        mov     eax, ebx
-        add     rsp, 32
-        pop     rbx
-        ret
-.LBB0_1:
-        add     rax, -8
-        mov     ecx, __pthread_key_create
-        test    rcx, rcx
-        je      .LBB0_3
-        mov     ecx, -1
-        lock
-        xadd    dword ptr [rax], ecx
-        jmp     .LBB0_4
-.LBB0_3:
-        mov     ecx, dword ptr [rax]
-        lea     edx, [rcx - 1]
-        mov     dword ptr [rax], edx
-.LBB0_4:                                # %__gnu_cxx::__exchange_and_add_dispatch(int*, int) [clone .exit] [clone .i] [clone .i]
-        test    ecx, ecx
-        jg      .LBB0_6
-        lea     rsi, [rsp + 24]
-        call    std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep::_M_destroy(std::allocator<char> const&)
-        jmp     .LBB0_6
-
-.L.str:
-        .asciz  "a"
-```
-
----------------------------------------------
-
-# Optimizing Compilers Are Amazing
-
-## Not To Pick On clang...
-
 ```cpp
 #include <string>
 
@@ -108,7 +57,9 @@ int main()
 }
 ```
 
-g++
+---------------------------------------------
+
+# Optimizing Compilers Are Amazing
 
 ```x86asm
 .LC0:
@@ -138,6 +89,14 @@ void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<cha
         movzx   eax, BYTE PTR [r12]
         mov     BYTE PTR [rdi], al
         jmp     .L6
+```
+
+
+---------------------------------------------
+
+# Optimizing Compilers Are Amazing
+
+```x86asm
 .L17:
         lea     rsi, [rsp+8]
         xor     edx, edx
@@ -165,6 +124,14 @@ void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<cha
         .string "a"
 .LC3:
         .string "b"
+```
+
+
+---------------------------------------------
+
+# Optimizing Compilers Are Amazing
+
+```x86asm
 main:
         push    rbx
         mov     edx, OFFSET FLAT:.LC2+1
@@ -193,6 +160,14 @@ main:
         cmp     rdi, rax
         je      .L24
         call    operator delete(void*)
+```
+
+
+---------------------------------------------
+
+# Optimizing Compilers Are Amazing
+
+```x86asm
 .L24:
         add     rsp, 64
         mov     eax, ebx
@@ -218,7 +193,7 @@ main:
 -----------------------------------
 
 
-# Profiling
+# Profiling ChaiScript
 
 > - Performance measuring ChaiScript is difficult
 > - Great number of template instantations
@@ -717,7 +692,6 @@ struct Int
 ```
 
 > - No branching, no atomics, smaller runtime (int vs string)
-> - (this is one case where 'small string optimization' hurts us)
 > - In the context of a large code base, this took ~2 years to find
 > - Resulted in 10% performance improvement across system
 > - *The simpler solution is almost always the best solution*
@@ -1072,7 +1046,6 @@ std::_Sp_counted_ptr_inplace<int, std::allocator<int>, (__gnu_cxx::_Lock_policy)
 
 ## `shared_ptr` Instantiations
 
-
 ```x86asm
 .L3:
         rep ret
@@ -1421,7 +1394,7 @@ std::shared_ptr<B> d_factory()
 }
 ```
 
-7573k exe, ~10% slower
+7573k exe, ~10% slower (very surprising when I found this bottleneck)
 
 
 
@@ -1625,6 +1598,15 @@ g++ 5.1
         cmp     rdi, 14
         jbe     .L7
         mov     DWORD PTR [rsp-12], esi
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         pxor    xmm4, xmm4
         movd    xmm0, DWORD PTR [rsp-12]
         pxor    xmm9, xmm9
@@ -1665,6 +1647,15 @@ g++ 5.1
         movdqa  xmm11, xmm2
         punpckhwd       xmm1, xmm0
         punpcklwd       xmm6, xmm0
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         movdqa  xmm0, xmm8
         pcmpgtw xmm0, xmm2
         movdqa  xmm2, xmm7
@@ -1682,6 +1673,15 @@ g++ 5.1
         paddq   xmm6, xmm4
         movdqa  xmm4, xmm11
         punpckldq       xmm5, xmm2
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         paddq   xmm5, xmm6
         movdqa  xmm6, xmm1
         movdqa  xmm1, xmm11
@@ -1702,6 +1702,15 @@ g++ 5.1
         paddq   xmm4, xmm0
         ja      .L8
         movdqa  xmm0, xmm4
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         add     rcx, r10
         psrldq  xmm0, 8
         paddq   xmm4, xmm0
@@ -1721,6 +1730,15 @@ g++ 5.1
         cmp     sil, BYTE PTR [rcx+1]
         sete    dl
         add     rax, rdx
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         lea     rdx, [rcx+2]
         cmp     r9, rdx
         je      .L2
@@ -1739,6 +1757,15 @@ g++ 5.1
         cmp     r9, rdx
         je      .L2
         xor     edx, edx
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         cmp     sil, BYTE PTR [rcx+4]
         sete    dl
         add     rax, rdx
@@ -1759,6 +1786,15 @@ g++ 5.1
         lea     rdx, [rcx+7]
         cmp     r9, rdx
         je      .L2
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         xor     edx, edx
         cmp     sil, BYTE PTR [rcx+7]
         sete    dl
@@ -1778,6 +1814,15 @@ g++ 5.1
         sete    dl
         add     rax, rdx
         lea     rdx, [rcx+10]
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         cmp     r9, rdx
         je      .L2
         xor     edx, edx
@@ -1799,6 +1844,15 @@ g++ 5.1
         sete    dl
         add     rax, rdx
         lea     rdx, [rcx+13]
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
         cmp     r9, rdx
         je      .L2
         xor     edx, edx
@@ -1820,6 +1874,15 @@ g++ 5.1
         mov     rcx, rbx
         xor     eax, eax
         jmp     .L4
+```
+
+------------------------------------------
+
+# Smaller Code Is Faster Code - Exceptions
+
+g++ 5.1
+
+```x86asm
 .L13:
         xor     eax, eax
         jmp     .L2
@@ -1846,10 +1909,9 @@ g++ 5.1
 
 # Smaller Code Is Faster Code - Exceptions
 
-> - This goes on for several more pages
 > - The compiler has unrolled and vectorized the loop for us
 > - So, you may see smaller/simpler code actually cause an increase in compile size
-> - (I'm not personally convinced, however)
+> - Is this necessarily a good thing all the time?
 
 
 ------------------------------------------
@@ -1882,7 +1944,7 @@ g++ 5.1
 
 ## `std::map`
 
- - For very small, short lived key value pairs, std::vector is faster
+ - For very small, short lived key value pairs, std::vector can be faster
  - Even if you are doing lots of querying of the keys
 
 ```cpp
