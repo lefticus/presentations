@@ -401,16 +401,10 @@ main:
 > - Assign a value in the buffer
 > - Delete the buffer
 
-
 ----------------------------------------
 
-# Part 1: Don't Do More Work Than You Have To
 
-----------------------------------------
-
-# Don't Do More Work Than You Have To
-
-## What about `std::array`?
+# What about `std::array`?
 
 ```cpp
 int main()
@@ -423,9 +417,7 @@ int main()
 ----------------------------------------
 
 
-# Don't Do More Work Than You Have To
-
-## What about `std::array`?
+# What about `std::array`?
 
 ```cpp
 int main()
@@ -442,6 +434,11 @@ main:
 ```
 
  - Code is completely compiled away
+
+
+----------------------------------------
+
+# Part 1: Don't Do More Work Than You Have To
 
 
 ----------------------------------------
@@ -894,13 +891,13 @@ int main()
 ```cpp
 int use_a_base(const Base &p)
 {
-  return p->value();
+  return p.value();
 }
 
 int main()
 {
   auto ptr = std::make_shared<Derived>();
-  use_a_base(ptr.get());
+  use_a_base(*ptr);
 }
 ```
 

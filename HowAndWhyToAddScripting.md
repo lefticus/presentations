@@ -1,6 +1,6 @@
 -----------------------------------
 
-# How And Why To Add Scripting
+# Why And How To Add Scripting
 
 
 -----------------------------------
@@ -216,7 +216,7 @@ Scripting can provide an easy way to read / change runtime parameters of a syste
 # SWIG
 
 > - Parses C++ and generates bindings for various languages
-> - Last updated: 2015-12-31 - in active development
+> - Last release: 2015-12-31 - in active development
 > - Wide range of compiler support
 
 -----------------------------------
@@ -260,11 +260,11 @@ Extensive Language Support
 
 # SWIG - Usage
 
-> 1. Specify C++ interface you want exposed to your scripting language
-> 2. Execute SWIG which generates a wrapper file
-> 3. Compile generated SWIG output file
-> 4. Initialize embedded scripting engine and load SWIG generated module
-> 5. Execute script
+ 1. Specify C++ interface you want exposed to your scripting language
+ 2. Execute SWIG which generates a wrapper file
+ 3. Compile generated SWIG output file
+ 4. Initialize embedded scripting engine and load SWIG generated module
+ 5. Execute script
 
 
 
@@ -445,7 +445,7 @@ SWIGEXPORT void Init_EmbeddedScripting(void) {
 # Boost.Python
 
  - Provides a wrapper layer for Boost <-> python
- - Last updated: 2009-11-17 (AKA boost 1.41.0) according to boost release notes
+ - Last significant update: 2009-11-17 (AKA boost 1.41.0) according to boost release notes
  - Supports the compilers that Boost supports
  - Why didn't we use pybind11? Learned about it late into preparing this talk and couldn't find examples on how to embed (instead of create module).
  
@@ -469,10 +469,10 @@ SWIGEXPORT void Init_EmbeddedScripting(void) {
 
 # Boost.Python - Usage
 
-> 1. Bind C++ functions to Python functions
-> 2. Initialize embedded scripting engine
-> 3. Load internally created module
-> 4. Execute script
+ 1. Bind C++ functions to Python functions
+ 2. Initialize embedded scripting engine
+ 3. Load internally created module
+ 4. Execute script
 
 
 -------------------------------
@@ -543,9 +543,9 @@ g++ boost_python.cpp -I /usr/include/python2.7/ -lboost_python -lpython2.7
 
 # sol2
 
- - Provides a wrapper layer between lua<->c++
- - Last release 2016-05-03 - actively developed
- - Supports Visual Studio 2015, Clang 3.5, G++ 4.9
+> - Provides a wrapper layer between lua<->c++
+> - Last release 2016-05-03 - actively developed
+> - Supports Visual Studio 2015, Clang 3.5, G++ 4.9
 
 -------------------------------
 
@@ -617,9 +617,9 @@ g++ ./sol2.cpp -I sol2/ -std=c++11 -I /usr/include/lua5.3/ -llua5.3
 
 # ChaiScript
 
- - Embedded scripting language co-designed by me specifically for C++
- - Supports Visual Studio 2013, clang 3.4, g++ 4.5 (but this is changing as we move to C++14)
- - Last release 2016-04-31 - actively developed
+> - Embedded scripting language co-designed by me specifically for C++
+> - Supports Visual Studio 2013, clang 3.4, g++ 4.5 (but this is changing as we move to C++14)
+> - Last release 2016-04-31 - actively developed
 
 
 -------------------------------
