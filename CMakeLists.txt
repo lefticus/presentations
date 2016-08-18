@@ -102,6 +102,6 @@ BuildDocument(ThinkingPortable ThinkingPortable.md)
 BuildDocument(CurrentStateOfStaticAnalysis CurrentStateOfStaticAnalysis.md)
 BuildDocument(CrazyEasyScriptingWithChaiScript CrazyEasyScriptingWithChaiScript.md)
 BuildDocument(PracticalPerformancePractices PracticalPerformancePractices.md)
-BuildDocument(HowAndWhyToAddScripting HowAndWhyToAddScripting.md)
+BuildDocument(WhyAndHowToAddScripting WhyAndHowToAddScripting.md)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/CrazyEasyScriptingWithChaiScript)

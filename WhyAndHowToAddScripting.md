@@ -17,6 +17,12 @@
 
 I prefer an interactive session - please ask questions
 
+
+-----------------------------------
+
+# Who Is Currently Using Scripting?
+
+
 -----------------------------------
 
 # My C++ Scripting Background
@@ -106,6 +112,7 @@ widget_2_height = 10
 widget_2_name = "widget2"
 ```
 
+> - This holds true even if we are using something like JSON, XML, YAML
 
 -----------------------------------
 
@@ -712,5 +719,6 @@ g++ ChaiScript.cpp  -ldl -pthread  -I ../../../ChaiScript/include/ -std=c++11
  * Independent Contractor
 
 
+ * Stickers!
 
 
