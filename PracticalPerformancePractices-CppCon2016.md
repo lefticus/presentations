@@ -1675,6 +1675,14 @@ main:                                   # @main
 > - Bigger code is often slower code
 > - If you enable `constexpr` make sure you go all the way
 
+------------------------------------------
+
+# A Quick Note On `final`
+
+> - Proper use of `final` can help the compiler optimize virtual function calls.
+> - If you know that a class or method will be the `final` version, mark it as such
+
+
 
 ------------------------------------------
 
@@ -1711,7 +1719,6 @@ main:                                   # @main
 
 > - Idiomatic C++ falls into certain patterns that compiler authors expect to find
 > - Well known patterns can be optimized better
-
 
 ---------------------------------------------
 
