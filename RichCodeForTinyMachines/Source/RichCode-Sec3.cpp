@@ -5,6 +5,7 @@
 ///
 
 #include <cstdint>
+#include <array>
 
 constexpr uint16_t SCREEN_BORDER_COLOR     = 53280;
 constexpr uint16_t SCREEN_BACKGROUND_COLOR = 53281;

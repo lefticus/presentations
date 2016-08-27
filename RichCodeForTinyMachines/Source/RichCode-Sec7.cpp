@@ -569,7 +569,7 @@ namespace {
 int main()
 {
 
-  constexpr std::array<Color, 16> colors {{
+  const std::array<Color, 16> colors {{
     Color{0,  0x00, 0x00, 0x00},
     Color{1,  0xFF, 0xFF, 0xFF},
     Color{2,  0x88, 0x39, 0x32},
@@ -588,7 +588,7 @@ int main()
     Color{15, 0x9F, 0x9F, 0x9F}
   }};
 
-/*  
+  /*
   make_sprite(0,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

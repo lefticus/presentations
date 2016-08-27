@@ -33,10 +33,10 @@ int main()
 #include <cstdint>
 
 namespace {
-volatile uint8_t& memory(const uint16_t loc)
-{
-  return *reinterpret_cast<uint8_t*>(loc);
-}
+  volatile uint8_t& memory(const uint16_t loc)
+  {
+    return *reinterpret_cast<uint8_t*>(loc);
+  }
 }
 
 int main()

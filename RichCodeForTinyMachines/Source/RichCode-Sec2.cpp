@@ -14,8 +14,8 @@ namespace {
 }
 
 int main() {
-  memory(1024 + 10 + (11 * 40)) = ‘a’;
-  memory(1024 + 20 + (11 * 40)) = ‘b’;
+  memory(1024 + 10 + (11 * 40)) = 'a';
+  memory(1024 + 20 + (11 * 40)) = 'b';
 }
 
 
@@ -40,6 +40,6 @@ namespace {
 }
 
 int main() {
-  display(10, 11, ‘a’);
-  display(20, 22, ‘b’);
+  display(10, 11, 'a');
+  display(20, 11, 'b');
 }
