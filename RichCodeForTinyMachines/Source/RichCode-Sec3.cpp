@@ -11,7 +11,7 @@ constexpr uint16_t SCREEN_BORDER_COLOR     = 53280;
 constexpr uint16_t SCREEN_BACKGROUND_COLOR = 53281;
 
 namespace {
- struct Color
+  struct Color
   {
     uint8_t num;
     uint8_t r;
@@ -19,10 +19,30 @@ namespace {
     uint8_t b;
   };
 
+
   volatile uint8_t& memory(const uint16_t loc)
   {
     return *reinterpret_cast<uint8_t*>(loc);
   }
+  
+  template<typename T>
+    auto square(T t) {
+      return t * t;
+  }
+
+  template<uint8_t r, uint8_t g, uint8_t b>
+  auto color_comparison(const Color &lhs, const Color &rhs)
+  {
+    // distance between colors:
+    // sqrt( (r1 - r2)^2 + (g1 - g2)^2 + (b1 - b2)^2 )
+  }
+
+  template<uint8_t r, uint8_t g, uint8_t b, typename Colors>
+  auto nearest_color(const Colors &colors)
+  {
+  }
+
+  
 }
 
 int main()
@@ -82,8 +102,10 @@ namespace {
   }
   
   template<uint8_t r, uint8_t g, uint8_t b>
-  auto color_distance(const Color &lhs, const Color &rhs)
+  auto color_comparison(const Color &lhs, const Color &rhs)
   {
+    // distance between colors:
+    // sqrt( (r1 - r2)^2 + (g1 - g2)^2 + (b1 - b2)^2 )
     return (square(lhs.r - r) + square(lhs.g - g) + square(lhs.b - b))
       < (square(rhs.r - r) + square(rhs.g - g) + square(rhs.b - b));
   }
@@ -91,7 +113,7 @@ namespace {
   template<uint8_t r, uint8_t g, uint8_t b, typename Colors>
   auto nearest_color(const Colors &colors)
   {
-    return *std::min_element(std::begin(colors), std::end(colors), color_distance<r,g,b>);
+    return *std::min_element(std::begin(colors), std::end(colors), color_comparison<r,g,b>);
   }
 
 }
@@ -155,7 +177,7 @@ namespace {
   }
   
   template<uint8_t r, uint8_t g, uint8_t b>
-  auto color_distance(const Color &lhs, const Color &rhs)
+  auto color_comparison(const Color &lhs, const Color &rhs)
   {
     return (square(lhs.r - r) + square(lhs.g - g) + square(lhs.b - b))
       < (square(rhs.r - r) + square(rhs.g - g) + square(rhs.b - b));
@@ -165,7 +187,7 @@ namespace {
   template<uint8_t r, uint8_t g, uint8_t b, typename Colors>
   auto nearest_color(const Colors &colors)
   {
-    return *std::min_element(std::begin(colors), std::end(colors), color_distance<r,g,b>);
+    return *std::min_element(std::begin(colors), std::end(colors), color_comparison<r,g,b>);
   }
 
 }

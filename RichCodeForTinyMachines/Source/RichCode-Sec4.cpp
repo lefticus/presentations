@@ -13,6 +13,7 @@
 
 constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
 constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
+constexpr uint16_t SCREEN_BORDER_COLOR = 53280;
 constexpr uint16_t SCREEN_BACKGROUND_COLOR = 53281;
 
 
@@ -26,6 +27,18 @@ namespace {
   {
     return (data & (1 << bit)) != 0;
   };
+
+  auto joystick(const uint8_t port) {
+    struct State{
+    };
+
+    if (port == 2) {
+      return State(memory(JOYSTICK_PORT_A));
+    } else {
+      return State(memory(JOYSTICK_PORT_B));
+    }
+  }
+
 }
 
 int main()
@@ -45,6 +58,7 @@ int main()
 
 constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
 constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
+constexpr uint16_t SCREEN_BORDER_COLOR = 53280;
 constexpr uint16_t SCREEN_BACKGROUND_COLOR = 53281;
 
 
@@ -57,7 +71,7 @@ namespace {
   constexpr bool test_bit(const uint8_t data, const uint8_t bit)
   {
     return (data & (1 << bit)) != 0;
-  };
+  }
 
 
   auto joystick(const uint8_t port) {
@@ -88,7 +102,7 @@ namespace {
     } else {
       return State(memory(JOYSTICK_PORT_B));
     }
-  };  
+  }
 }
 
 int main()
@@ -98,6 +112,7 @@ int main()
     {
       const auto [x,y] = joy.direction_vector();
       memory(SCREEN_BACKGROUND_COLOR) += x;
+      memory(SCREEN_BORDER_COLOR) += y;
     }
   }
 }

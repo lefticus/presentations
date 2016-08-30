@@ -1,162 +1,137 @@
 
-/// Sec 5 - Monochrome sprites
-
-
 ///
-/// Start code:
+/// Initial Code:
 ///
-
 
 #include <cstdint>
+#include <utility>
 
-constexpr uint8_t  SPRITE_STARTING_BANK = 192;
+constexpr uint16_t JOYSTICK_PORT_A           = 56320; // joystick #2
+constexpr uint16_t JOYSTICK_PORT_B           = 56321; // joystick #1
+constexpr uint16_t SCREEN_BORDER_COLOR       = 53280;
+constexpr uint16_t SCREEN_CONTROL_REGISTER_1 = 53265;
+constexpr uint16_t SCREEN_RASTER_LINE        = 53266;
 
 
 namespace {
-
   volatile uint8_t &memory(const uint16_t loc)
   {
     return *reinterpret_cast<uint8_t *>(loc);
   }
 
-}
-
-int main()
-{
-
-  make_sprite(0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-             );
-}
-
-#include <cstdint>
-
-constexpr uint8_t  SPRITE_STARTING_BANK = 192;
-
-
-namespace {
-
-  volatile uint8_t &memory(const uint16_t loc)
+  constexpr bool test_bit(const uint8_t data, const uint8_t bit)
   {
-    return *reinterpret_cast<uint8_t *>(loc);
+    return (data & (1 << bit)) != 0;
   }
 
+
+  auto joystick(const uint8_t port) {
+    struct State{
+      State(const uint8_t portdata) 
+        : up(!test_bit(portdata,0)),
+          down(!test_bit(portdata,1)),
+          left(!test_bit(portdata,2)),
+          right(!test_bit(portdata,3)),
+          fire(!test_bit(portdata,4))
+      {
+      }
+
+      bool up;
+      bool down;
+      bool left;
+      bool right;
+      bool fire;      
+    };
+
+    if (port == 2) {
+      return State(memory(JOYSTICK_PORT_A));
+    } else {
+      return State(memory(JOYSTICK_PORT_B));
+    }
+  }
 }
 
 int main()
 {
-
-  make_sprite(0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-             );
+  while (true) {
+    if (const auto joy = joystick(1); joy.fire && joy.up) 
+    {
+      ++memory(SCREEN_BORDER_COLOR);
+    }
+  }
 }
 
 
 
-/// 
+
+
+
+///
 /// Final Code:
 ///
 
 #include <cstdint>
+#include <utility>
 
-constexpr uint8_t  SPRITE_STARTING_BANK = 192;
+constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
+constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
+constexpr uint16_t SCREEN_BORDER_COLOR = 53280;
 
 
 namespace {
-
   volatile uint8_t &memory(const uint16_t loc)
   {
     return *reinterpret_cast<uint8_t *>(loc);
   }
 
-  void write_pixel(uint16_t)
+  constexpr bool test_bit(const uint8_t data, const uint8_t bit)
   {
+    return (data & (1 << bit)) != 0;
   }
 
 
-  template<typename D1, typename D2, typename D3, typename D4, typename D5, typename D6, typename D7, typename D8, typename ...  D >
-    void write_pixel(uint16_t loc, D1 d1, D2 d2, D3 d3, D4 d4, D5 d5, D6 d6, D7 d7, D8 d8, D ... d)
-  {
-    memory(loc) = (d1 << 7) | (d2 << 6) | (d3 << 5) | (d4 << 4) | (d5 << 3) | (d6 << 2) | (d7 << 1) | d8;
-    write_pixel(loc + 1, d...);
-  }
+  auto joystick(const uint8_t port) {
+    struct State{
+      State(const uint8_t portdata) 
+        : up(!test_bit(portdata,0)),
+          down(!test_bit(portdata,1)),
+          left(!test_bit(portdata,2)),
+          right(!test_bit(portdata,3)),
+          fire(!test_bit(portdata,4))
+      {
+      }
 
+      bool up;
+      bool down;
+      bool left;
+      bool right;
+      bool fire;      
+    };
 
-  template<typename ... D>
-    void make_sprite(uint8_t memory_loc, D ... d)
-  {
-    write_pixel((SPRITE_STARTING_BANK + memory_loc) * 64, d...);
+    if (port == 2) {
+      return State(memory(JOYSTICK_PORT_A));
+    } else {
+      return State(memory(JOYSTICK_PORT_B));
+    }
   }
-    
 }
 
 int main()
 {
-
-
-
-  make_sprite(0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,
-              0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
-              0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,
-              0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-             );
+  struct Frame
+  {
+    Frame() 
+    {
+      while (!(memory(SCREEN_RASTER_LINE) == 250 && !test_bit(memory(SCREEN_CONTROL_REGISTER_1),7))) {}
+    } 
+  };
+  
+  while (true) {
+    Frame f;
+    if (const auto joy = joystick(1); joy.fire && joy.up) 
+    {
+      ++memory(SCREEN_BORDER_COLOR);
+    }
+  }
 }
 
