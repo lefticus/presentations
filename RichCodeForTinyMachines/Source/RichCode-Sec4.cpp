@@ -30,6 +30,8 @@ namespace {
 
   auto joystick(const uint8_t port) {
     struct State{
+      State(const uint8_t data) {
+      }
     };
 
     if (port == 2) {
@@ -38,7 +40,6 @@ namespace {
       return State(memory(JOYSTICK_PORT_B));
     }
   }
-
 }
 
 int main()

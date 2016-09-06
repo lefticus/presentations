@@ -18,9 +18,14 @@ namespace {
   {
     return *reinterpret_cast<uint8_t *>(loc);
   }
+
+  template<typename ...  D >
+    void write_pixel(uint16_t loc, bool d1, bool d2, bool d3, bool d4, bool d5, bool d6, bool d7, bool d8, D ... d)
+  {
+  }
   
   template<typename ... D>
-  void make_sprite(uint8_t memory_loc, D ... d)
+    void make_sprite(uint8_t memory_loc, D ... d)
   {
     write_pixel((SPRITE_STARTING_BANK + memory_loc) * 64, d...);
   }

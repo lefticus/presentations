@@ -1,10 +1,4 @@
-/// The Final Act
-
-
-/// 
-/// End With: 
-///
-
+/// Final Game
 
 #include <cstdint>
 #include <array>
@@ -30,7 +24,6 @@ constexpr uint16_t SPRITE_COLLISIONS         = VIDEO_REGISTERS + 30;
 constexpr uint16_t SPRITE_0_COLOR            = VIDEO_REGISTERS + 39;
 constexpr uint16_t SPRITE_1_COLOR            = SPRITE_0_COLOR + 1;
 constexpr uint16_t SPRITE_2_COLOR            = SPRITE_1_COLOR + 1;
-constexpr uint16_t SCREEN_CONTROL_REGISTER_1 = 53265;
 constexpr uint16_t SCREEN_RASTER_LINE        = 53266;
 
 
@@ -213,7 +206,7 @@ namespace {
     Frame(Player &p1, Player &p2) 
       : player1(p1), player2(p2)
     {
-      while (!(memory(SCREEN_RASTER_LINE) == 250 && !test_bit(memory(SCREEN_CONTROL_REGISTER_1),7))) {}
+      while (memory(SCREEN_RASTER_LINE) != 250) {}
     }
     
     ~Frame() {
@@ -229,7 +222,7 @@ namespace {
 
 int main()
 {
-
+  // Setup
   const std::array<Color, 16> colors {{
     Color{0,  0x00, 0x00, 0x00},
     Color{1,  0xFF, 0xFF, 0xFF},
@@ -321,6 +314,8 @@ int main()
   Player p1(1, 15,  255/2);
   Player p2(2, 255, 255/2);
   
+  
+  // Game Loop
   while (true) {    
     Frame rt(p1, p2);
     

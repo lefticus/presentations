@@ -5,8 +5,12 @@
 /// Start with: 
 ///
 
-// clean slate
 
+#include <cstdint>
+
+int main()
+{
+}
 
 ///
 /// Mid point:
