@@ -11,30 +11,68 @@
 #include <cstdint>
 #include <utility>
 
-constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
-constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
-constexpr uint16_t SCREEN_BACKGROUND_COLOR = 53281;
-
 
 namespace {
+  volatile uint8_t &memory(const uint16_t loc)
+  {
+    return *reinterpret_cast<uint8_t *>(loc);
+  }
 
-volatile uint8_t &memory(const uint16_t loc)
-{
-  return *reinterpret_cast<uint8_t *>(loc);
+  constexpr bool test_bit(const uint8_t data, const uint8_t bit)
+  {
+    return (data & (1 << bit)) != 0;
+  };
+
+  struct VIC_II
+  {
+    static constexpr uint16_t BORDER_COLOR     = 53280;
+    static constexpr uint16_t BACKGROUND_COLOR = 53281;
+
+    volatile uint8_t& border() {
+      return memory(BORDER_COLOR);
+    }
+    
+    volatile uint8_t& background() {
+      return memory(BACKGROUND_COLOR);
+    }
+  };
+
+  struct JoyStick
+  {
+    static constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
+    static constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
+    
+    struct PortData
+    {
+      uint8_t data;
+    };
+    
+    JoyStick(const PortData d)
+    {
+    }
+    
+    JoyStick(const uint8_t port_num)
+      : JoyStick(PortData{port_num==2?memory(JOYSTICK_PORT_A):memory(JOYSTICK_PORT_B)})
+    {
+    }
+        
+    bool up,down,left,right,fire;
+  };
+
 }
-
-constexpr bool test_bit(const uint8_t data, const uint8_t bit)
-{
-  return (data & (1 << bit)) != 0;
-};
-
 
 int main()
 {
+  VIC_II vic;
+
+  while (true) {
+    if (const auto joy = JoyStick(1); joy.fire) 
+    {
+      vic.background() = 1;
+    }
+  }
+
 }
-
-
-
 
 
 ///
@@ -44,63 +82,77 @@ int main()
 #include <cstdint>
 #include <utility>
 
-constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
-constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
-constexpr uint16_t SCREEN_BACKGROUND_COLOR = 53281;
-
 
 namespace {
+  volatile uint8_t &memory(const uint16_t loc)
+  {
+    return *reinterpret_cast<uint8_t *>(loc);
+  }
 
-volatile uint8_t &memory(const uint16_t loc)
-{
-  return *reinterpret_cast<uint8_t *>(loc);
-}
+  constexpr bool test_bit(const uint8_t data, const uint8_t bit)
+  {
+    return (data & (1 << bit)) != 0;
+  };
 
-constexpr bool test_bit(const uint8_t data, const uint8_t bit)
-{
-  return (data & (1 << bit)) != 0;
-};
+  struct VIC_II
+  {
+    static constexpr uint16_t BORDER_COLOR     = 53280;
+    static constexpr uint16_t BACKGROUND_COLOR = 53281;
 
-
-auto joystick(const uint8_t port) {
-  struct State{
-    State(const uint8_t portdata) 
-      : up(!test_bit(portdata,0)),
-        down(!test_bit(portdata,1)),
-        left(!test_bit(portdata,2)),
-        right(!test_bit(portdata,3)),
-        fire(!test_bit(portdata,4))
-    {
+    volatile uint8_t& border() {
+      return memory(BORDER_COLOR);
     }
-
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-    bool fire;
     
-    auto direction_vector() const 
-    {
-      return std::make_pair(left?-1:(right?1:0), up?-1:(down?1:0));
+    volatile uint8_t& background() {
+      return memory(BACKGROUND_COLOR);
     }
   };
 
-  if (port == 2) {
-    return State(memory(JOYSTICK_PORT_A));
-  } else {
-    return State(memory(JOYSTICK_PORT_B));
-  }
-};  
+  struct JoyStick
+  {
+    static constexpr uint16_t JOYSTICK_PORT_A = 56320; // joystick #2
+    static constexpr uint16_t JOYSTICK_PORT_B = 56321; // joystick #1
+    
+    struct PortData
+    {
+      uint8_t data;
+    };
+    
+    JoyStick(const PortData d)
+      : up(!test_bit(d.data, 0)),
+        down(!test_bit(d.data, 1)),
+        left(!test_bit(d.data, 2)),
+        right(!test_bit(d.data, 3)),
+        fire(!test_bit(d.data, 4))
+    {
+    }
+    
+    JoyStick(const uint8_t port_num)
+      : JoyStick(PortData{port_num==2?memory(JOYSTICK_PORT_A):memory(JOYSTICK_PORT_B)})
+    {
+    }
+    
+    auto direction_vector() const
+    {
+      return std::make_pair(left?-1:(right?1:0), up?-1:(down?1:0));
+    }
+    
+    bool up,down,left,right,fire;
+  };
+
 }
 
 int main()
 {
+  VIC_II vic;
+
   while (true) {
-    if (const auto joy = joystick(1); joy.fire) 
+    if (const auto joy = JoyStick(1); joy.fire) 
     {
       const auto [x,y] = joy.direction_vector();
-      memory(SCREEN_BACKGROUND_COLOR) += x;
+      vic.background() += x;
+      vic.border() += y;
     }
   }
-}
 
+}
