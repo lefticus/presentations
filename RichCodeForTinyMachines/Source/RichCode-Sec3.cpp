@@ -143,7 +143,7 @@ namespace {
       // distance between colors:
       // sqrt( (r1 - r2)^2 + (g1 - g2)^2 + (b1 - b2)^2 )
       return (square(lhs.r - r) + square(lhs.g - g) + square(lhs.b - b))
-        <(square(rhs.r - r) + square(rhs.g - g) + square(rhs.b - b));
+           < (square(rhs.r - r) + square(rhs.g - g) + square(rhs.b - b));
     }
 
     template<uint8_t r, uint8_t g, uint8_t b, typename Colors>
@@ -237,7 +237,7 @@ namespace {
       // distance between colors:
       // sqrt( (r1 - r2)^2 + (g1 - g2)^2 + (b1 - b2)^2 )
       return (square(lhs.r - r) + square(lhs.g - g) + square(lhs.b - b))
-        <(square(rhs.r - r) + square(rhs.g - g) + square(rhs.b - b));
+           < (square(rhs.r - r) + square(rhs.g - g) + square(rhs.b - b));
     }
 
     template<uint8_t r, uint8_t g, uint8_t b, typename Colors>
