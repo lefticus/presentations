@@ -38,11 +38,18 @@ namespace {
     };
     
     JoyStick(const PortData d)
+      : up(!test_bit(d.data, 0)),
+        down(!test_bit(d.data, 1)),
+        left(!test_bit(d.data, 2)),
+        right(!test_bit(d.data, 3)),
+        fire(!test_bit(d.data, 4))
     {
     }
     
     JoyStick(const uint8_t port_num)
-      : JoyStick(PortData{port_num==2?memory(JOYSTICK_PORT_A):memory(JOYSTICK_PORT_B)})
+      : JoyStick(
+          PortData{port_num==2?memory(JOYSTICK_PORT_A):memory(JOYSTICK_PORT_B)}
+        )
     {
     }
         

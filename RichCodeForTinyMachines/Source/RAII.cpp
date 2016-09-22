@@ -1,4 +1,4 @@
-nclude <cstdint>
+#include <cstdint>
 #include <utility>
 
 
@@ -34,7 +34,9 @@ namespace {
     }
     
     JoyStick(const uint8_t port_num)
-      : JoyStick(PortData{port_num==2?memory(JOYSTICK_PORT_A):memory(JOYSTICK_PORT_B)})
+      : JoyStick(
+          PortData{port_num==2?memory(JOYSTICK_PORT_A):memory(JOYSTICK_PORT_B)}
+        )
     {
     }
     

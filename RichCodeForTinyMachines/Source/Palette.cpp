@@ -24,7 +24,7 @@ namespace {
 
   struct VIC_II
   {
-    static constexpr uint16_t VIDEO_MEMORY = 1024;
+    static constexpr uint16_t VIDEO_MEMORY     = 1024;
     static constexpr uint16_t BORDER_COLOR     = 53280;
     static constexpr uint16_t BACKGROUND_COLOR = 53281;
 

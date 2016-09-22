@@ -165,7 +165,8 @@ namespace {
     template<uint8_t r, uint8_t g, uint8_t b, typename Colors>
     static auto nearest_color(const Colors &colors)
     {
-      return *std::min_element(std::begin(colors), std::end(colors), color_comparison<r,g,b>);
+      return *std::min_element(std::begin(colors), std::end(colors), 
+                               color_comparison<r,g,b>);
     }
     
     auto frame(Player &p1, Player &p2)
@@ -202,14 +203,16 @@ namespace {
     }
 
     template<typename ...  D >
-      void write_multi_color_pixel(uint16_t loc, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, D ... d)
+      void write_multi_color_pixel(uint16_t loc, uint8_t d1, uint8_t d2, 
+                                   uint8_t d3, uint8_t d4, D ... d)
     {
       memory(loc) = (d1 << 6) | (d2 << 4) | (d3 << 2) | d4;
       write_multi_color_pixel(loc + 1, d...);
     }
 
     template<typename ...  D >
-      void write_pixel(uint16_t loc, bool d1, bool d2, bool d3, bool d4, bool d5, bool d6, bool d7, bool d8, D ... d)
+      void write_pixel(uint16_t loc, bool d1, bool d2, bool d3, bool d4, 
+                       bool d5, bool d6, bool d7, bool d8, D ... d)
     {
       memory(loc) = (d1 << 7) | (d2 << 6) | (d3 << 5) | (d4 << 4) | (d5 << 3) | (d6 << 2) | (d7 << 1) | d8;
       write_pixel(loc + 1, d...);
@@ -232,7 +235,8 @@ namespace {
                        const bool multicolor, const bool low_priority,
                        const bool double_width, const bool double_height)
     {
-      memory(SPRITE_DATA_POINTERS + sprite_number) = SPRITE_STARTING_BANK + memory_loc;
+      memory(SPRITE_DATA_POINTERS + sprite_number) 
+        = SPRITE_STARTING_BANK + memory_loc;
       set_bit(SPRITE_ENABLE_BITS, sprite_number, true);
       set_bit(SPRITE_EXPAND_HORIZONTAL, sprite_number, double_width);
       set_bit(SPRITE_EXPAND_VERTICAL, sprite_number, double_height);
@@ -259,7 +263,8 @@ namespace {
       return memory(SPRITE_2_COLOR);
     }
     
-    std::pair<volatile uint8_t &, volatile uint8_t &> sprite_pos(const uint8_t sprite_num)
+    std::pair<volatile uint8_t &, volatile uint8_t &> 
+      sprite_pos(const uint8_t sprite_num)
     {
       return {
                memory(SPRITE_POSITION_REGISTERS + sprite_num * 2),

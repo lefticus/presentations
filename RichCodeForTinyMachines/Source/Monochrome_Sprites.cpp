@@ -11,7 +11,8 @@ namespace {
   }
 
   template<typename ...  D >
-    void write_pixel(uint16_t loc, bool d1, bool d2, bool d3, bool d4, bool d5, bool d6, bool d7, bool d8, D ... d)
+    void write_pixel(uint16_t loc, bool d1, bool d2, bool d3, bool d4, 
+                                   bool d5, bool d6, bool d7, bool d8, D ... d)
   {
   }
   
@@ -50,4 +51,5 @@ int main()
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
              );
 }
+
 
