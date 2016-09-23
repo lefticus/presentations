@@ -2,7 +2,7 @@
 
 # Practical Performance Practices
 
-## CppCon 2016
+## CppCon 2016 - This session only works if you interact! Please come forward.
 
 -----------------------------------
 
@@ -16,6 +16,7 @@
  * C++ Weekly - YouTube Series
  * @lefticus
  * Independent Contractor
+ * http://articles.emptycrate.com/idocpp
 
 I prefer an interactive session - please ask questions
 
@@ -1414,7 +1415,7 @@ template<int T> std::shared_ptr<B> d_factory()
 ```
 
 > - This `make_shared` version is faster in raw performance
-> - If you create many short-lived shared bjects, the `make_shared` version is fastest
+> - If you create many short-lived shared objects, the `make_shared` version is fastest
 > - If you create long-lived shared objects, use the `make_unique` version is fastest
 > - C++ Core Guidelines are surprisingly inconsistent in examples for factories
 
@@ -1783,6 +1784,8 @@ Are there ways you can simplify your user input to make the execution of your pr
  * C++ Weekly - YouTube
  * @lefticus
  * Independent Contractor
+ * http://articles.emptycrate.com/idocpp
+ * Coupons!
 
 
 
