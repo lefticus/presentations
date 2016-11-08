@@ -66,6 +66,8 @@ Function(BuildDocument docName)
     list(APPEND input_names ${CMAKE_CURRENT_SOURCE_DIR}/${input_name})
   endforeach()
 
+  list(GET input_names 0 MD_FILE)
+
   add_custom_command(OUTPUT ${output_name}
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/${docName}/reveal.js
     COMMAND ${CMAKE_COMMAND} -E make_directory   ${CMAKE_BINARY_DIR}/${docName}/reveal.js
@@ -84,7 +86,10 @@ Function(BuildDocument docName)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/highlight.pack.js ${CMAKE_BINARY_DIR}/${docName}/highlight.js/
     COMMAND ${CMAKE_COMMAND} -E copy_directory   ${CMAKE_CURRENT_SOURCE_DIR}/highlight.js/styles ${CMAKE_BINARY_DIR}/${docName}/highlight.js/styles
 
-    COMMAND ${PANDOC_EXECUTABLE} ${input_names} -o ${output_name} --no-highlight --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html  -A ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  --email-obfuscation=none
+    COMMAND ${CMAKE_COMMAND} -E copy ${input_names} ${CMAKE_BINARY_DIR}/${docName}/
+
+
+    COMMAND ${PANDOC_EXECUTABLE} ${MD_FILE} -o ${output_name} --no-highlight --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html  -A ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  --email-obfuscation=none
     #COMMAND ${PANDOC_EXECUTABLE} ${input_names} -o ${output_name} --no-highlight --css reveal.js/css/theme/lefticus.css -f markdown_github -s -t revealjs -A ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html   --email-obfuscation=none
     DEPENDS ${input_names} ${CMAKE_CURRENT_SOURCE_DIR}/highlightjs-header.html  ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/css/theme/lefticus.css
     #DEPENDS ${input_names}   ${CMAKE_CURRENT_SOURCE_DIR}/revealjs-header.html ${CMAKE_CURRENT_SOURCE_DIR}/reveal.js/css/theme/lefticus.css
@@ -101,7 +106,10 @@ EndFunction()
 BuildDocument(ThinkingPortable ThinkingPortable.md)
 BuildDocument(CurrentStateOfStaticAnalysis CurrentStateOfStaticAnalysis.md)
 BuildDocument(CrazyEasyScriptingWithChaiScript CrazyEasyScriptingWithChaiScript.md)
-BuildDocument(PracticalPerformancePractices PracticalPerformancePractices.md)
-BuildDocument(WhyAndHowToAddScripting WhyAndHowToAddScripting.md)
+BuildDocument(PracticalPerformancePractices PracticalPerformancePractices.md chai-timing.svg MSVC_ChaiProfiling.png optimized_parse_node_graph.dot optimized_parse_node_graph.svg parse_node_graph.dot parse_node_graph_labeled.dot parse_node_graph_labeled.svg parse_node_graph.svg performance_monitoring.png)
+BuildDocument(PracticalPerformancePractices-CppCon2016 PracticalPerformancePractices-CppCon2016.md chai-timing.svg MSVC_ChaiProfiling.png optimized_parse_node_graph.dot optimized_parse_node_graph.svg parse_node_graph.dot parse_node_graph_labeled.dot parse_node_graph_labeled.svg parse_node_graph.svg performance_monitoring.png)
+BuildDocument(HowAndWhyToAddScripting HowAndWhyToAddScripting.md)
+
+
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/CrazyEasyScriptingWithChaiScript)
